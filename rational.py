@@ -28,13 +28,13 @@ class Rational():
         self.numerator = numerator
         self.denominator = denominator
 
-    def __subtract(self, other, in_place):
+    def __subtract(self, other: Type['Rational'], in_place) -> 'Rational':
         print(f"{self} - {other} -> ", end='')
         subtractor = Rational(-other.numerator, other.denominator)
 
         return self.__add(subtractor, in_place)
 
-    def __add(self, other, in_place):
+    def __add(self, other: Type['Rational'], in_place):
         print(f"{self} + {other} -> ", end='')
 
         if self.denominator == other.denominator:
@@ -63,7 +63,7 @@ class Rational():
             else:
                 return summand
 
-    def __divide(self, divisor, in_place):
+    def __divide(self, divisor: Type['Rational'], in_place) -> 'Rational':
         """
         Divide two rationals by flipping the numerator and denominator and multiplying
         """
@@ -77,7 +77,7 @@ class Rational():
         
         return self.__multiply(new, in_place)
     
-    def __multiply(self, other, in_place):
+    def __multiply(self, other: Type['Rational'], in_place) -> 'Rational':
         """
         Multiply two rationals
         """
@@ -94,7 +94,7 @@ class Rational():
         print(f"{new}")
         return new
 
-    def simplify(self, in_place=True):
+    def simplify(self, in_place=True) -> 'Rational':
         """
         Simplifies this rational number and returns it. If in_place is set to true, it will simplify this object
         """
@@ -160,10 +160,10 @@ class Rational():
         else:
             return (a*b) // math.gcd(a,b)
 
-    def __deepclone(self):
+    def __deepclone(self) -> 'Rational':
         return Rational(self.numerator, self.denominator)
 
-    def __compare(self, other, comparator: operator):
+    def __compare(self, other: Type['Rational'], comparator: operator):
         """ compare 2 rational numbers with some comparator"""
         (a,b) = Rational.__unify(self, other)
         return comparator(a.numerator,b.numerator)
@@ -174,7 +174,7 @@ class Rational():
         return "({0}{1})".format(self.numerator, '/' + str(self.denominator) if self.denominator != 1 else '')
 
     # negation -
-    def __neg__(self):
+    def __neg__(self) -> 'Rational':
         """ 
         Override of negation. Allows user to perform -rational to invert sign of rational.
         """
@@ -182,23 +182,23 @@ class Rational():
         return n
 
     # >
-    def __gt__(self, other):
+    def __gt__(self, other: Type['Rational']) -> bool:
         return self.__compare(other, operator.gt)
 
     # >=
-    def __ge__(self, other):
+    def __ge__(self, other: Type['Rational']) -> bool:
         return self.__compare(other, operator.ge)
 
     # <
-    def __lt__(self, other):
+    def __lt__(self, other: Type['Rational']) -> bool:
         return self.__compare(other, operator.lt)
 
     # <=
-    def __le__(self, other):
+    def __le__(self, other: Type['Rational']) -> bool:
         return self.__compare(other, operator.le)
 
     # >
-    def __eq__(self, other):
+    def __eq__(self, other: Type['Rational']) -> bool:
         """ 
         Override of ==. Checks that they both represent the *same rational number*, not that their numerator and denominator are the saem
         """
@@ -212,7 +212,7 @@ class Rational():
         return object.__hash__(self)
 
     # - 
-    def __sub__(self, other):
+    def __sub__(self, other: Type['Rational']) -> 'Rational':
         """ 
         Subtract another rational number from this rational number RETURNS A NEW RATIONAL representing the subtraction
 
@@ -224,7 +224,7 @@ class Rational():
         return self.__subtract(other, in_place=False)
 
     # -=
-    def __isub__(self, other):
+    def __isub__(self, other: Type['Rational']) -> 'Rational':
         """ 
         Subtract another rational number from this rational number IN PLACE
 
@@ -237,7 +237,7 @@ class Rational():
         return self
 
     # *=
-    def __imul__(self, other):
+    def __imul__(self, other: Type['Rational']) -> 'Rational':
         """ 
         Multiply another rational number to this rational number IN PLACE
 
@@ -249,7 +249,7 @@ class Rational():
         return self.__multiply(other, in_place=True)
 
     # * left multiply
-    def __mul__(self, other):
+    def __mul__(self, other: Type['Rational']) -> 'Rational':
         """ 
         Multiply another rational number to this rational number RETURNS A NEW RATIONAL representing the product
 
@@ -261,7 +261,7 @@ class Rational():
         return self.__multiply(other, in_place=False)
 
     # * right multiply - not used but needs to be overridden to use mul
-    def __rmul__(self, other):
+    def __rmul__(self, other: Type['Rational']) -> 'Rational':
         """ 
         Multiply another rational number to this rational number RETURNS A NEW RATIONAL representing the product
 
@@ -273,7 +273,7 @@ class Rational():
         return self.__multiply(other, in_place=False)
 
     # /=
-    def __itruediv__(self, other):
+    def __itruediv__(self, other: Type['Rational']) -> 'Rational':
         """ 
         Divide this rational number by other IN PLACE
 
@@ -285,14 +285,14 @@ class Rational():
         return self.__divide(other, in_place=True)
 
     # /=
-    def __ifloordiv__(self, other):
+    def __ifloordiv__(self, other: Type['Rational']) -> 'Rational':
         """ 
         identical implementation to itruediv
         """
         return self.__divide(other, in_place=True)
 
     # /
-    def __truediv__(self, other):
+    def __truediv__(self, other: Type['Rational']) -> 'Rational':
         """ 
         Divie this rational number by other RETURNS A NEW RATIONAL representing the division
 
@@ -304,14 +304,14 @@ class Rational():
         return self.__divide(other, in_place=False)
 
     # /
-    def __floordiv__(self, other):
+    def __floordiv__(self, other: Type['Rational']) -> 'Rational':
         """ 
         identical implementation to truediv
         """
         return self.__divide(other, in_place=False)
 
     # +
-    def __add__(self, other):
+    def __add__(self, other: Type['Rational']) -> 'Rational':
         """ 
         Add another rational number to this rational number RETURNS A NEW RATIONAL representing the summation
 
@@ -323,7 +323,7 @@ class Rational():
         return self.__add(other, in_place=False)
 
     # +=
-    def __iadd__(self, other):
+    def __iadd__(self, other: Type['Rational']) -> 'Rational':
         """ 
         Add another rational number to this rational number IN PLACE
 
