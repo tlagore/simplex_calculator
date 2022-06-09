@@ -1,5 +1,6 @@
 from decimal import DivisionByZero
 import math
+import operator
 
 from typing import Type
 
@@ -28,14 +29,14 @@ class Rational():
         self.denominator = denominator
 
     def __subtract(self, other: Type['Rational'], in_place) -> 'Rational':
-        print(f"SUBTRACTING: {self} - {other}. In place: {in_place}")
+        print(f"{self} - {other} -> ", end='')
         subtractor = Rational(-other.numerator, other.denominator)
-        print(f"SUBTRACTED: {self}")
+        print(f"{self}")
 
         return self.__add(subtractor, in_place)
 
     def __add(self, other: Type['Rational'], in_place):
-        print(f"ADDING: {self} + {other}, In place: {in_place}")
+        print(f"{self} + {other} -> ", end='')
 
         if self.denominator == other.denominator:
             # covers whole numbers (both None) and shared denominators
@@ -44,16 +45,17 @@ class Rational():
             else:
                 return Rational(self.numerator + other.numerator, self.denominator)
         else:
-            new_denominator = self.__lcm(self.denominator, other.denominator)
+            new_denominator = Rational.__lcm(self.denominator, other.denominator)
 
             # we don't mutate here
             adder = self.__change_denominator(new_denominator)
             addend = other.__change_denominator(new_denominator)
 
             summand = Rational(adder.numerator + addend.numerator, new_denominator)
+
             summand.simplify()
 
-            print(f"ADDED: {summand}")
+            print(f"{summand}")
             
             if in_place:
                 self.numerator = summand.numerator
@@ -69,29 +71,29 @@ class Rational():
         if divisor.numerator == 0:
             raise DivisionByZero(f"Cannot perform division as divisor has numerator of {divisor.numerator}")
 
-        print(f"DIVIDING: {self} / {divisor}, In place: {in_place}")
+        print(f"{self} / {divisor} -> ", end = '')
 
         # flip the divisor, maintain the sign of the numerator
         new = Rational(int(math.copysign(divisor.denominator, divisor.numerator)), abs(divisor.numerator))
         
-        print(f"DIVIDED: {new}")
+        print(f"{new}")
         return self.__multiply(new, in_place)
     
     def __multiply(self, other: Type['Rational'], in_place) -> 'Rational':
         """
         Multiply two rationals
         """
-        print(f"MULTIPLYING: {self} * {other}, In place: {in_place}")
+        print(f"{self} * {other} -> ", end='')
         if in_place:
             new = self
         else:
-            new = Rational(self.numerator, self.denominator)
+            new = self.__deepclone()
 
         new.numerator = new.numerator * other.numerator
         new.denominator = new.denominator * other.denominator
         new.simplify()
 
-        print(f"MULTIPLIED: {new}")
+        print(f"{new}")
         return new
 
     def simplify(self, in_place=True) -> 'Rational':
@@ -131,8 +133,6 @@ class Rational():
 
         multiplier = new_denominator // self.denominator
 
-        print(f"MULTIPLIER: {multiplier}")
-
         # same denominator
         if multiplier == 1:
             new_numerator = self.numerator
@@ -141,29 +141,72 @@ class Rational():
 
         return Rational(new_numerator, new_denominator)
         
+    def __unify(a: 'Rational', b: 'Rational'):
+        """
+        unify takes in rational a and b and returns a tuple of Rationals (a^, b^)
+        with both fractions having the same denominator (for comparisons)
+        """
+        a_hat = a.__deepclone()
+        b_hat = b.__deepclone()
+        lcm = Rational.__lcm(a_hat.denominator, b_hat.denominator)
 
-    def __lcm(self, a: int, b: int) -> int:
+        a_hat = a_hat.__change_denominator(lcm)
+        b_hat = b_hat.__change_denominator(lcm)
+
+        return (a_hat, b_hat)
+
+    def __lcm(a: int, b: int) -> int:
         """ Finds the lowest common multiple of 2 integers numbers"""
         if a == b:
             return a
         else:
             return (a*b) // math.gcd(a,b)
 
+    def __deepclone(self) -> 'Rational':
+        return Rational(self.numerator, self.denominator)
+
+    def __compare(self, other: Type['Rational'], comparator: operator):
+        """ compare 2 rational numbers with some comparator"""
+        (a,b) = Rational.__unify(self, other)
+        return comparator(a.numerator,b.numerator)
 
     ## OVERRIDES:
     def __repr__(self):
         """ string format a/b or a if b = 1"""
         return "({0}{1})".format(self.numerator, '/' + str(self.denominator) if self.denominator != 1 else '')
 
-    # ==
+    # negation -
+    def __neg__(self) -> 'Rational':
+        """ 
+        Override of negation. Allows user to perform -rational to invert sign of rational.
+        """
+        n = Rational(-self.numerator, self.denominator)
+        return n
+
+    # >
+    def __gt__(self, other: Type['Rational']) -> bool:
+        return self.__compare(other, operator.gt)
+
+    # >=
+    def __ge__(self, other: Type['Rational']) -> bool:
+        return self.__compare(other, operator.ge)
+
+    # <
+    def __lt__(self, other: Type['Rational']) -> bool:
+        return self.__compare(other, operator.lt)
+
+    # <=
+    def __le__(self, other: Type['Rational']) -> bool:
+        return self.__compare(other, operator.le)
+
+    # >
     def __eq__(self, other: Type['Rational']) -> bool:
         """ 
-        Override of ==. Will check for equality between fractions.
-
-        Returns true if the fractions represent the same rational number (i.e. 2/4 == 1/2 = True)
+        Override of ==. Checks that they both represent the *same rational number*, not that their numerator and denominator are the saem
         """
         a = self.simplify(in_place=False)
         b = other.simplify(in_place=False)
+
         return a.numerator == b.numerator and a.denominator == b.denominator
 
     # required for ==

@@ -8,6 +8,7 @@ def test_init():
     exception_cases = [
         (1, 0),     # denominator cannot be 0
         (None, 1),  # numerator cannot be none
+        (1, None),  # denominator cannot be none
         (1, -1),    # denominator cannot be negative
         (0.5, 1),   # numerator cannot be float
         (1, 0.5)    # denominator cannot be float
@@ -85,20 +86,6 @@ def test_divide():
     with pytest.raises(DivisionByZero):
         new = rat1 / zero_rational
 
-
-def test_eq():
-    cases = {
-        (Rational(2, 4), Rational(1, 1)): False,
-        (Rational(5, 6), Rational(-5, 6)): False,
-        (Rational(-1, 2), Rational(1, 2)): False,
-        (Rational(1, 2), Rational(1, 2)): True,
-        (Rational(32, 2), Rational(16, 1)): True,
-        (Rational(-5, 2), Rational(-10, 4)): True,
-    }
-
-    for case, expected in cases.items():
-        assert (case[0] == case[1]) == expected, f"Failed equality assertion. {case[0]} == {case[1]} returned {not expected}, but expected {expected}"
-
 def test_mul():
     """
     Test adding 2 rationals using the + operator
@@ -153,3 +140,44 @@ def test_subtract():
     
     assert_op_cases(cases, operator.sub)
     assert_op_cases(cases, operator.isub)
+
+def test_equalities():
+    """
+    Test adding 2 rationals using the - operator
+    """
+    op_lookup = {
+        operator.le: "<=",
+        operator.lt: "<",
+        operator.ge: ">=",
+        operator.gt: ">",
+        operator.eq: "="
+    }
+
+    cases = {
+        (Rational(1, 1), operator.le, Rational(1, 4)): False,
+        (Rational(1, 4), operator.le, Rational(1, 1)): True,
+        (Rational(1, 4), operator.le, Rational(1, 4)): True,
+
+        (Rational(1, 1), operator.lt, Rational(1, 4)): False,
+        (Rational(1, 4), operator.lt, Rational(1, 4)): False,
+        (Rational(1, 4), operator.lt, Rational(3, 8)): True,
+
+        (Rational(2, 4), operator.ge, Rational(1, 1)): False,
+        (Rational(1, 4), operator.ge, Rational(1, 8)): True,
+        (Rational(2, 4), operator.ge, Rational(1, 2)): True,
+
+        (Rational(99999, 100000), operator.gt, Rational(1, 1)): False,
+        (Rational(5, 7), operator.gt, Rational(15, 21)): False,
+        (Rational(100001, 100000), operator.gt, Rational(1, 1)): True,
+        (Rational(5, 3), operator.gt, Rational(3, 5)): True,
+
+        (Rational(2, 4), operator.eq, Rational(1, 1)): False,
+        (Rational(5, 6), operator.eq, Rational(-5, 6)): False,
+        (Rational(-1, 2), operator.eq, Rational(1, 2)): False,
+        (Rational(1, 2), operator.eq, Rational(1, 2)): True,
+        (Rational(32, 2), operator.eq, Rational(16, 1)): True,
+        (Rational(-5, 2), operator.eq, Rational(-10, 4)): True,
+    }
+    
+    for (a, op, b), expected in cases.items():
+        assert op(a,b) == expected, f"Failed equality assertion. {a} {op_lookup[op]} {b} returned {not expected}, but expected {expected}"
