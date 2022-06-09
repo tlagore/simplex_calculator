@@ -10,7 +10,7 @@ class Rational():
 
     Supports all operations, addition, subtraction, division, multiplication, and equality.
 
-    Every pythonic operator is overridden for the above operations, 
+    Every operator is overridden for the above operations, 
     i.e: + += - -= / /= * *= and ==
 
     Note that == returns true if the 2 rational numbers *represent the same rational number*, 

@@ -9,7 +9,10 @@ class Variable():
         self.varname = varname
 
 class Expression():
-    def __init__(self, lhs: Variable, rhs: list[Variable]):
+    def __init__(self, lhs: Variable, rhs: list['Expression']):
+        """
+        lhs can be None
+        """
         self.lhs = lhs
         self.rhs = rhs
     
@@ -21,3 +24,5 @@ class Expression():
                 rhs_lookup[variable.varname].append(variable.coefficent)
             else:
                 rhs_lookup[variable.varname] = [variable.coefficent]
+
+            
