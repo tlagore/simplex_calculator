@@ -31,7 +31,6 @@ class Rational():
     def __subtract(self, other: Type['Rational'], in_place) -> 'Rational':
         print(f"{self} - {other} -> ", end='')
         subtractor = Rational(-other.numerator, other.denominator)
-        print(f"{self}")
 
         return self.__add(subtractor, in_place)
 
@@ -76,7 +75,6 @@ class Rational():
         # flip the divisor, maintain the sign of the numerator
         new = Rational(int(math.copysign(divisor.denominator, divisor.numerator)), abs(divisor.numerator))
         
-        print(f"{new}")
         return self.__multiply(new, in_place)
     
     def __multiply(self, other: Type['Rational'], in_place) -> 'Rational':
@@ -223,7 +221,6 @@ class Rational():
         Returns
             [Rational]: Rational representing the subtraction
         """
-        print("IN SUB")
         return self.__subtract(other, in_place=False)
 
     # -=
