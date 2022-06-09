@@ -1,7 +1,7 @@
 from rational import Rational
 
 class Variable():
-    def __init__(self, coefficient: Rational, varname: str):
+    def __init__(self, coefficient, varname):
         """
         Represents a variable in an expression. pass varname = None to represent a constant
         """
@@ -9,7 +9,7 @@ class Variable():
         self.varname = varname
 
 class Expression():
-    def __init__(self, lhs: Variable, rhs: list[Variable]):
+    def __init__(self, lhs, rhs):
         self.lhs = lhs
         self.rhs = rhs
     
