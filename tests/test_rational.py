@@ -8,7 +8,6 @@ def test_init():
     exception_cases = [
         (1, 0),     # denominator cannot be 0
         (None, 1),  # numerator cannot be none
-        (1, None),  # denominator cannot be none
         (1, -1),    # denominator cannot be negative
         (0.5, 1),   # numerator cannot be float
         (1, 0.5)    # denominator cannot be float

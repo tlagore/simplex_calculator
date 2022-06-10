@@ -17,10 +17,13 @@ class Rational():
     which is true for fractions like (2/4 == 1/2). 
     """
     def __init__(self, numerator, denominator=1):
-        if denominator <= 0 or denominator is None or not isinstance(denominator, int):
+        if denominator <= 0 or not isinstance(denominator, int):
             raise Exception("Denominator must be an integer, " +
                 "cannot be less than or equal to 0, and cannot be None. " +
                 "Use '1' for whole numbers. Make the numerator negative for negative rationals.")
+
+        if denominator == None:
+            denominator = 1
 
         if numerator is None or not isinstance(numerator, int):
             raise Exception("Numerator must be an integer")
@@ -171,7 +174,7 @@ class Rational():
     ## OVERRIDES:
     def __repr__(self):
         """ string format a/b or a if b = 1"""
-        return "({0}{1})".format(self.numerator, '/' + str(self.denominator) if self.denominator != 1 else '')
+        return "({0}{1}{2})".format('+' if self.numerator > 0 else '', self.numerator, '/' + str(self.denominator) if self.denominator != 1 else '')
 
     # negation -
     def __neg__(self) -> 'Rational':
