@@ -1,5 +1,5 @@
-from expression import Variable, Expression
-from rational import Rational
+from linear_expressions import Variable, LinearExpression
+from fractions import Fraction
 
 import re
 
@@ -83,5 +83,5 @@ class Parser():
             fn = fn.replace(match.groups(0), '')
             match = expression_re.search(fn)
 
-        return Expression(expr_lst)
+        return LinearExpression(expr_lst)
             
