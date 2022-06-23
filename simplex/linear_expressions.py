@@ -1,14 +1,23 @@
+from ast import Expression
 from fractions import Fraction
 
 class Variable():
     """ """
+
+    CONSTANT = 'C'
+
     def __init__(self, varname: str, coefficient: Fraction):
         """ """
         self.coefficient = coefficient
         self.varname = varname
 
+    def deepclone(self):
+        return Variable(self.varname, Fraction(self.coefficient))
+
     def __repr__(self):
-        return f"{self.coefficient}{self.varname}"
+        msg = f"{self.coefficient}"
+        msg += self.varname if self.varname != Variable.CONSTANT else ''
+        return msg
 
     # negation -
     def __neg__(self) -> 'Variable':
@@ -195,7 +204,11 @@ class LinearExpression():
         self.__lhs = lhs
 
         # create a dictionary for quick lookup of variables
-        self.__rhs = {val.varname:val for val in rhs}
+        # deepclone in case caller is reusing variables
+        self.__rhs = {val.varname:val.deepclone() for val in rhs}
+
+        if Variable.CONSTANT not in self.__rhs:
+            raise Exception(f"Cannot create a linear expression without a constant term. This can be 0, but must exist with the variable name '{Variable.CONSTANT}'")   
     
     def in_terms_of(self, varname: str):
         if varname not in self.__rhs:
@@ -208,6 +221,14 @@ class LinearExpression():
         self.__rhs[self.__lhs.varname] = self.__lhs
         self.__lhs = repl_val
         self.__normalize()
+
+        return list(self.__rhs.items())
+
+    def get_constant(self):
+        if Variable.CONSTANT not in self.__rhs:
+            raise Exception(f'Expression did not have a constant variable')
+
+        return self.__rhs[Variable.CONSTANT]
 
     def get_var(self, varname: str):
         if varname not in self.__rhs:
@@ -243,14 +264,24 @@ class LinearExpression():
         self.__lhs.coefficient = Fraction(1)
 
     def itervars(self):
-        for var in self.rhs.values():
-            yield var
+        for var in self.__rhs.values():
+            yield var.deepclone()
+
+    def deepclone(self):
+        lhs = self.__lhs.deepclone()
+        rhs = [var.deepclone() for var in self.__rhs.values()]
+
+        return LinearExpression(lhs, rhs)
 
     def __repr__(self):
         rhs_str = ""
 
-        for var in self.__rhs.values():
+        rhs_vars = list(self.__rhs.values())
+        rhs_vars.sort(key=lambda v: v.varname)
+
+        for var in rhs_vars:
             rhs_str += ' + ' if var.coefficient > 0  else ' - '
-            rhs_str += f'{str(abs(var.coefficient))}{var.varname}'
+            rhs_str += f'{str(abs(var.coefficient))}'
+            rhs_str += var.varname if var.varname != self.CONSTANT else ''
 
         return f'{self.__lhs.varname} = {rhs_str}'
