@@ -22,8 +22,24 @@ class SimplexSolver():
         self.x_vars = self.objective_function.rhs_vars()
         self.config = config
 
+    def is_feasible(self):
+        for basis_expr in self.basis_exprs:
+            const = basis_expr.get_constant().coefficient
+            if const < 0:
+                return False
+
+    def make_feasible(self):
+
+        return False
+
     def solve(self):
-        self.state = SimplexState.FEASIBLE
+        if not self.is_feasible():
+            if self.make_feasible():
+                self.state = SimplexState.FEASIBLE
+            else:
+                self.state = SimplexState.INFEASIBLE
+        else:
+            self.state = SimplexState.FEASIBLE
 
         while self.state == SimplexState.FEASIBLE:
             (entering_var, leaving_expr) = self.__get_pivot()
@@ -32,17 +48,17 @@ class SimplexSolver():
                 self.__pivot(entering_var, leaving_expr)
                 print(repr(self))
                 print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}") 
-            elif self.state == SimplexState.INFEASIBLE:
-                print("INFEASIBLE!")
-                print(repr(self))
-            elif self.state == SimplexState.UNBOUNDED:
-                print("UNBOUNDED!")
-                print(repr(self))
-        
+            
         if self.state == SimplexState.OPTIMAL:
             print("Optimal Dictionary:")
             print(repr(self))
             print(f"Objective value: {self.objective_function.get_constant().coefficient}")
+        elif self.state == SimplexState.INFEASIBLE:
+            print("INFEASIBLE!")
+            print(repr(self))
+        elif self.state == SimplexState.UNBOUNDED:
+            print("UNBOUNDED!")
+            print(repr(self))
 
     def __get_pivot(self):
         """ """
