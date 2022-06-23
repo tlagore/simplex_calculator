@@ -18,4 +18,5 @@ constraints = [
 simplex_config = SimplexConfig()
 
 simplex = SimplexDictionary(obj_fn, constraints, simplex_config)
+print(simplex)
 simplex.solve()

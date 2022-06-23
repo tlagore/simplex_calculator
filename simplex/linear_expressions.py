@@ -15,7 +15,9 @@ class Variable():
         return Variable(self.varname, Fraction(self.coefficient))
 
     def __repr__(self):
-        msg = f"{self.coefficient}"
+        msg = ''
+        msg += ' + ' if self.coefficient >= 0  else ' - '
+        msg += f'({str(abs(self.coefficient))})'
         msg += self.varname if self.varname != Variable.CONSTANT else ''
         return msg
 
@@ -222,7 +224,7 @@ class LinearExpression():
         self.__lhs = repl_val
         self.__normalize()
 
-        return list(self.__rhs.items())
+        return list(self.__rhs.values())
 
     def get_constant(self):
         if Variable.CONSTANT not in self.__rhs:
@@ -235,6 +237,9 @@ class LinearExpression():
             raise Exception(f"get_var():: Expression does not have '{varname}' as a variable")
 
         return self.__rhs[varname]
+
+    def varname(self):
+        return self.__lhs.varname
 
     def substitute(self, varname: str, expr: list[Variable]):
         if varname not in self.__rhs:
@@ -280,8 +285,6 @@ class LinearExpression():
         rhs_vars.sort(key=lambda v: v.varname)
 
         for var in rhs_vars:
-            rhs_str += ' + ' if var.coefficient > 0  else ' - '
-            rhs_str += f'{str(abs(var.coefficient))}'
-            rhs_str += var.varname if var.varname != self.CONSTANT else ''
+            rhs_str += repr(var)
 
         return f'{self.__lhs.varname} = {rhs_str}'
