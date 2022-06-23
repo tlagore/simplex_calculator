@@ -8,7 +8,7 @@ class PivotMethod(Enum):
 class SimplexConfig():
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
 
-class SimplexDictionary():
+class SimplexSolver():
     def __init__(self, objective_function: LinearExpression, constraints: list[LinearExpression], config: SimplexConfig):
         """ """
         self.basis_exprs = [constraint.deepclone() for constraint in constraints]

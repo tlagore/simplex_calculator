@@ -1,4 +1,4 @@
-from simplex.simplex_dictionary import SimplexDictionary, SimplexConfig
+from simplex.simplex_solver import SimplexSolver, SimplexConfig
 from simplex.linear_expressions import LinearExpression, Variable
 from fractions import Fraction
 
@@ -17,6 +17,6 @@ constraints = [
 
 simplex_config = SimplexConfig()
 
-simplex = SimplexDictionary(obj_fn, constraints, simplex_config)
+simplex = SimplexSolver(obj_fn, constraints, simplex_config)
 print(simplex)
 simplex.solve()
