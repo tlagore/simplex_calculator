@@ -212,6 +212,9 @@ class LinearExpression():
         if Variable.CONSTANT not in self.__rhs:
             raise Exception(f"Cannot create a linear expression without a constant term. This can be 0, but must exist with the variable name '{Variable.CONSTANT}'")   
     
+    def rhs_vars(self):
+        return list[self.__rhs.keys]
+
     def in_terms_of(self, varname: str):
         if varname not in self.__rhs:
             raise Exception(f"in_terms_of():: Cannot rewrite expression in terms of '{varname}' because it was not found in the expression.")

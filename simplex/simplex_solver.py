@@ -5,6 +5,12 @@ from enum import Enum
 class PivotMethod(Enum):
     LARGEST_COEFFICIENT = 1
 
+class SimplexState(Enum):
+    FEASIBLE = 1
+    OPTIMAL = 2
+    INFEASIBLE = 3
+    UNBOUNDED = 4
+
 class SimplexConfig():
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
 
@@ -13,28 +19,39 @@ class SimplexSolver():
         """ """
         self.basis_exprs = [constraint.deepclone() for constraint in constraints]
         self.objective_function = objective_function.deepclone()
+        self.x_vars = self.objective_function.rhs_vars()
         self.config = config
 
     def solve(self):
-        while not self.optimal():
+        self.state = SimplexState.FEASIBLE
+
+        while self.state == SimplexState.FEASIBLE:
             (entering_var, leaving_expr) = self.__get_pivot()
+            
+            if self.state == SimplexState.FEASIBLE:
+                print(repr(self))
+                print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}")
+                resultant = leaving_expr.in_terms_of(entering_var.varname)
 
-            print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}")
-            resultant = leaving_expr.in_terms_of(entering_var.varname)
+                self.objective_function.substitute(entering_var.varname, resultant)
+                for basis_expr in self.basis_exprs:
+                    if basis_expr == leaving_expr:
+                        continue
+                    
+                    basis_expr.substitute(entering_var.varname, resultant)
 
-            self.objective_function.substitute(entering_var.varname, resultant)
-            print(self.objective_function)
-
-            for basis_expr in self.basis_exprs:
-                if basis_expr == leaving_expr:
-                    print(basis_expr)
-                    continue
-                
-                basis_expr.substitute(entering_var.varname, resultant)
-                print(basis_expr)
-
-        print("Optimal Dictionary:")
-        print(repr(self))
+                self.update_state()
+            elif self.state == SimplexState.INFEASIBLE:
+                print("INFEASIBLE!")
+                print(repr(self))
+            elif self.state == SimplexState.UNBOUNDED:
+                print("UNBOUNDED!")
+                print(repr(self))
+        
+        if self.state == SimplexState.OPTIMAL:
+            print("Optimal Dictionary:")
+            print(repr(self))
+            print(f"Objective value: {self.objective_function.get_constant().coefficient}")
 
     def __get_pivot(self):
         """ """
@@ -46,11 +63,15 @@ class SimplexSolver():
 
         if entering_var is None:
             if self.optimal():
-                raise Exception("WRONG")
+                self.state == SimplexState.OPTIMAL
             else:
-                print("DONE!")
+                self.state == SimplexState.INFEASIBLE
         else:
             leaving_expr = self.__get_leaving_variable(entering_var)
+
+            
+        if leaving_expr is None:
+            self.state = SimplexState.UNBOUNDED
 
         return (entering_var, leaving_expr)
 
@@ -95,6 +116,9 @@ class SimplexSolver():
     def __pivot(self, entering, leaving):
         """"""
         
+    def update_state(self):
+        if self.optimal():
+            self.state = SimplexState.OPTIMAL
 
     def optimal(self):
         optimal = True
@@ -111,9 +135,13 @@ class SimplexSolver():
         """ """
 
     def __repr__(self):
-        msg = repr(self.objective_function)
+        msg = '----------------------------------\n'
+        msg += repr(self.objective_function)
+        msg += '\n----------------------------------'
         
         for basis_expr in self.basis_exprs:
             msg += f'\n{repr(basis_expr)}'
+
+        msg += '\n----------------------------------'
 
         return msg
