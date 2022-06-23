@@ -29,18 +29,9 @@ class SimplexSolver():
             (entering_var, leaving_expr) = self.__get_pivot()
             
             if self.state == SimplexState.FEASIBLE:
+                self.__pivot(entering_var, leaving_expr)
                 print(repr(self))
-                print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}")
-                resultant = leaving_expr.in_terms_of(entering_var.varname)
-
-                self.objective_function.substitute(entering_var.varname, resultant)
-                for basis_expr in self.basis_exprs:
-                    if basis_expr == leaving_expr:
-                        continue
-                    
-                    basis_expr.substitute(entering_var.varname, resultant)
-
-                self.update_state()
+                print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}") 
             elif self.state == SimplexState.INFEASIBLE:
                 print("INFEASIBLE!")
                 print(repr(self))
@@ -113,8 +104,18 @@ class SimplexSolver():
 
         return leaving_expr
 
-    def __pivot(self, entering, leaving):
+    def __pivot(self, entering_var, leaving_expr):
         """"""
+        resultant = leaving_expr.in_terms_of(entering_var.varname)
+
+        self.objective_function.substitute(entering_var.varname, resultant)
+        for basis_expr in self.basis_exprs:
+            if basis_expr == leaving_expr:
+                continue
+            
+            basis_expr.substitute(entering_var.varname, resultant)
+
+        self.update_state()
         
     def update_state(self):
         if self.optimal():
@@ -130,9 +131,6 @@ class SimplexSolver():
             optimal = optimal and constraint.get_constant().coefficient >= 0
 
         return optimal
-    
-    def pick_basis_swap(self, var):
-        """ """
 
     def __repr__(self):
         msg = '----------------------------------\n'
