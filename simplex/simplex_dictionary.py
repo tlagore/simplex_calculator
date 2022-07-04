@@ -33,6 +33,9 @@ class SimplexDictionary():
 
         return True
 
+    def as_nf_dual(self):
+        
+
     def make_feasible(self):
         return False
 
