@@ -237,7 +237,7 @@ class LinearExpression():
 
     def get_var(self, varname: str):
         if varname not in self.__rhs:
-            raise Exception(f"get_var():: Expression does not have '{varname}' as a variable")
+            return None
 
         return self.__rhs[varname]
 

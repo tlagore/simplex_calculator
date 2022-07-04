@@ -34,6 +34,7 @@ constraints = [
     LinearExpression(Variable('w4', Fraction(1)), constraint4_rhs),
 ]
 
+simplex = SimplexSolver(obj_fn, constraints, simplex_config)
 simplex.solve()
 
 # Infeasible
