@@ -1,3 +1,4 @@
+from cmath import e
 from math import inf
 from typing import Tuple
 from simplex.linear_expressions import LinearExpression, Variable
@@ -41,6 +42,7 @@ class SimplexDictionary():
 
     def debug_print(self, *args, **kwargs):
         if self.DEBUG:
+            print('DEBUG::\t\t', end='')
             print(*args, **kwargs)
 
     def get_basis_values(self):
@@ -49,10 +51,12 @@ class SimplexDictionary():
 
         basis_sol = []
 
-        for basis_expr in self.basis_exprs:
-            var = basis_expr.get_lhs()
-            if var.varname in self.x_vars:
-                basis_sol += [(var.varname, basis_expr.get_constant().coefficient)]
+        for varname in self.x_vars:
+            basis_expr = self.get_basis_by_varname(varname)
+            if basis_expr is None:
+                basis_sol += [(varname, Fraction(0))]
+            else:
+                basis_sol += [(varname, basis_expr.get_constant().coefficient)]
 
         basis_sol.sort(key=lambda v: v[0])
         return basis_sol
@@ -149,12 +153,8 @@ class SimplexDictionary():
     def __get_dual_lookup_table(self):
         """ 
         Lookup dictionary for variable names
-         x1-n <-> yn+1->yn+m
+         x1-n <-> yn+1-yn+m
          xn+1-n+m <-> y1-m
-         End result is dictionary
-         {
-            TODO:
-         }
         """
         # if we are already a dual, then we name variables x, otherwise y if we are turning into a dual
         dual_prefix = 'x' if self.is_dual else 'y'
@@ -162,7 +162,7 @@ class SimplexDictionary():
 
         var_lookup = { f'{dual_replace}{i}':f'{dual_prefix}{self.m+i}' for i in range(1, self.n+1)}
         var_lookup = var_lookup | {f'{dual_replace}{i}':f'{dual_prefix}{i-self.n}' for i in range(self.n+1, self.n+self.m+1)}
-        self.debug_print(var_lookup)
+        self.debug_print(f'Variable lookup: {var_lookup}')
 
         return var_lookup
 
@@ -209,7 +209,7 @@ class SimplexDictionary():
                 entering_var = var
 
         if entering_var is None:
-            if self.optimal():
+            if self.__optimal():
                 self.__state == SimplexState.OPTIMAL
             else:
                 self.__state == SimplexState.INFEASIBLE
@@ -363,7 +363,7 @@ class SimplexDictionary():
 
 
     def __repr__(self):
-        msg = '----------------------------------\n'
+        msg = '\n----------------------------------\n'
         msg += repr(self.objective_function)
         msg += '\n----------------------------------'
         

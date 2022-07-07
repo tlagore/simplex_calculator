@@ -15,6 +15,7 @@ class SimplexSolver():
 
     def debug_print(self, *args, **kwargs):
         if self.DEBUG:
+            print('DEBUG::\t\t', end='')
             print(*args, **kwargs)
 
     def make_feasible(self):
@@ -87,11 +88,12 @@ class SimplexSolver():
             print(f'{float(objective_value):.7f}')
             basis_sol = self.s_dict.get_basis_values()
             print(' '.join([f'{float(value):.7f}' for (_, value) in basis_sol]))
-
         elif state == SimplexState.INFEASIBLE:
+            print('infeasible')
             self.debug_print("INFEASIBLE!")
             self.debug_print(repr(self))
         elif state == SimplexState.UNBOUNDED:
+            print('unbounded')
             self.debug_print("UNBOUNDED!")
             self.debug_print(repr(self))
 
