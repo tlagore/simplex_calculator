@@ -21,9 +21,10 @@ class SimplexSolver():
         # Overwrite the objective function to be 0 + 0x1 + 0x2 + 0x3... + 0xn
         # Solve the dual
         # Substitute the original objective function back in
-
-        orig_fn = self.s_dict.objective_function.deepclone()
-        dual = self.s_dict.as_nf_dual()
+        
+        orig_fn = self.s_dict.as_dual_init()
+        print(self.s_dict)
+        
         return False
 
     def solve(self):

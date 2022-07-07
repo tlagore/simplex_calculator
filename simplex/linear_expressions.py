@@ -203,17 +203,25 @@ class LinearExpression():
     
     def __init__(self, lhs: Variable, rhs: list[Variable]):
         """ """
+        self.set_expression(lhs, rhs)
+    
+    def rhs_vars(self):
+        return list[self.__rhs.keys]
+
+    def num_terms(self):
+        """ -1 for constant term """
+        return len(self.__rhs) - 1
+
+    def set_expression(self, lhs: Variable, rhs: list[Variable]):
+        """
+        """
         self.__lhs = lhs
 
         # create a dictionary for quick lookup of variables
         # deepclone in case caller is reusing variables
         self.__rhs = {val.varname:val.deepclone() for val in rhs}
-
         if Variable.CONSTANT not in self.__rhs:
-            raise Exception(f"Cannot create a linear expression without a constant term. This can be 0, but must exist with the variable name '{Variable.CONSTANT}'")   
-    
-    def rhs_vars(self):
-        return list[self.__rhs.keys]
+            raise Exception(f"Cannot create a linear expression without a constant term. This can be 0, but must exist with the variable name '{Variable.CONSTANT}'")
 
     def in_terms_of(self, varname: str):
         if varname not in self.__rhs:
@@ -240,6 +248,9 @@ class LinearExpression():
             return None
 
         return self.__rhs[varname]
+
+    def get_lhs(self):
+        return self.__lhs.deepclone()
 
     def varname(self):
         return self.__lhs.varname
@@ -281,6 +292,20 @@ class LinearExpression():
 
         return LinearExpression(lhs, rhs)
 
+    def deepequals(self, other: 'LinearExpression'):
+        """ Check if expression other deepequals self
+            This does not care the order of the variables
+        """
+        equal = True
+
+        equal = equal and other.__lhs == self.__lhs
+
+        for key, var in self.__rhs.items():
+            other_var = other.get_var(key)
+            equal = equal and var.coefficient == other_var.coefficient
+
+        return equal
+
     def __repr__(self):
         rhs_str = ""
 
@@ -290,4 +315,6 @@ class LinearExpression():
         for var in rhs_vars:
             rhs_str += repr(var)
 
-        return f'{self.__lhs.varname} = {rhs_str}'
+        prefix = '' if self.__lhs.coefficient >= 0  else '-'
+
+        return f'{prefix}{self.__lhs.varname} = {rhs_str}'
