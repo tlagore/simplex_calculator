@@ -28,6 +28,6 @@ solver = SimplexSolver(obj_fn, constraints, config)
 solver.DEBUG = True
 solver.solve()
 
-solver.s_dict.as_dual_nf()
+# solver.s_dict.as_dual_nf()
 
 print(solver.s_dict)

@@ -9,15 +9,16 @@ constraint3_rhs = [Variable(Variable.CONSTANT, Fraction(5)), Variable('x1', Frac
 constraint4_rhs = [Variable(Variable.CONSTANT, Fraction(5)), Variable('x1', Fraction(-5)), Variable('x2', Fraction(-1))]
 
 constraints = [
-    LinearExpression(Variable('w1', Fraction(1)), constraint1_rhs),
-    LinearExpression(Variable('w2', Fraction(1)), constraint2_rhs),
-    LinearExpression(Variable('w3', Fraction(1)), constraint3_rhs),
-    LinearExpression(Variable('w4', Fraction(1)), constraint4_rhs),
+    LinearExpression(Variable('x3', Fraction(1)), constraint1_rhs),
+    LinearExpression(Variable('x4', Fraction(1)), constraint2_rhs),
+    LinearExpression(Variable('x5', Fraction(1)), constraint3_rhs),
+    LinearExpression(Variable('x6', Fraction(1)), constraint4_rhs),
 ]
 
 simplex_config = SimplexConfig()
 
 simplex = SimplexSolver(obj_fn, constraints, simplex_config)
+simplex.DEBUG = True
 simplex.solve()
 
 # unbounded
@@ -28,13 +29,14 @@ constraint3_rhs = [Variable(Variable.CONSTANT, Fraction(5)), Variable('x1', Frac
 constraint4_rhs = [Variable(Variable.CONSTANT, Fraction(5)), Variable('x1', Fraction(5)), Variable('x2', Fraction(-1))]
 
 constraints = [
-    LinearExpression(Variable('w1', Fraction(1)), constraint1_rhs),
-    LinearExpression(Variable('w2', Fraction(1)), constraint2_rhs),
-    LinearExpression(Variable('w3', Fraction(1)), constraint3_rhs),
-    LinearExpression(Variable('w4', Fraction(1)), constraint4_rhs),
+    LinearExpression(Variable('x3', Fraction(1)), constraint1_rhs),
+    LinearExpression(Variable('x4', Fraction(1)), constraint2_rhs),
+    LinearExpression(Variable('x5', Fraction(1)), constraint3_rhs),
+    LinearExpression(Variable('x6', Fraction(1)), constraint4_rhs),
 ]
 
 simplex = SimplexSolver(obj_fn, constraints, simplex_config)
+simplex.DEBUG = True
 simplex.solve()
 
 # Infeasible
@@ -45,13 +47,14 @@ constraint3_rhs = [Variable(Variable.CONSTANT, Fraction(5)), Variable('x1', Frac
 constraint4_rhs = [Variable(Variable.CONSTANT, Fraction(5)), Variable('x1', Fraction(-5)), Variable('x2', Fraction(-1))]
 
 constraints = [
-    LinearExpression(Variable('w1', Fraction(1)), constraint1_rhs),
-    LinearExpression(Variable('w2', Fraction(1)), constraint2_rhs),
-    LinearExpression(Variable('w3', Fraction(1)), constraint3_rhs),
-    LinearExpression(Variable('w4', Fraction(1)), constraint4_rhs),
+    LinearExpression(Variable('x3', Fraction(1)), constraint1_rhs),
+    LinearExpression(Variable('x4', Fraction(1)), constraint2_rhs),
+    LinearExpression(Variable('x5', Fraction(1)), constraint3_rhs),
+    LinearExpression(Variable('x6', Fraction(1)), constraint4_rhs),
 ]
 
 simplex_config = SimplexConfig()
 
 simplex = SimplexSolver(obj_fn, constraints, simplex_config)
+simplex.DEBUG = True
 simplex.solve()

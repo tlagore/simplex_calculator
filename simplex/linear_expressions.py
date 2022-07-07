@@ -281,9 +281,10 @@ class LinearExpression():
         # same as dividing by itself
         self.__lhs.coefficient = Fraction(1)
 
-    def itervars(self):
+    def itervars(self, include_constant=False):
         for var in self.__rhs.values():
-            yield var.deepclone()
+            if include_constant or var.varname != Variable.CONSTANT:
+                yield var.deepclone()
 
     def deepclone(self):
         lhs = self.__lhs.deepclone()
@@ -298,6 +299,9 @@ class LinearExpression():
             deepequals is onlyt used for testing, so it has print statements in it
         """
         if other.__lhs != self.__lhs:
+            return False
+
+        if len(self.__rhs) != len(other.__rhs):
             return False
 
         for key, var in self.__rhs.items():

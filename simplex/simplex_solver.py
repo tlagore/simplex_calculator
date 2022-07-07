@@ -2,7 +2,6 @@ from math import inf
 from simplex.linear_expressions import LinearExpression
 from simplex.simplex_dictionary import SimplexDictionary, PivotMethod, SimplexState
 
-
 class SimplexConfig():
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
 
@@ -12,6 +11,7 @@ class SimplexSolver():
     def __init__(self, objective_function: LinearExpression, constraints: list[LinearExpression], config: SimplexConfig):
         """ """
         self.s_dict = SimplexDictionary(objective_function, constraints)
+        self.config = config
 
     def debug_print(self, *args, **kwargs):
         if self.DEBUG:
@@ -19,33 +19,48 @@ class SimplexSolver():
 
     def make_feasible(self):
         """ 
+        Attempt to make the dictionary feasibly by solving an auxillery problem.
+        Uses the dual initialization technique
+        
         This does not necessarily succeed
+
+        Returns: True if successful, else false
         """
 
-        # STEPS:
-        # Save the objective function
-        # Overwrite the objective function to be 0 + 0x1 + 0x2 + 0x3... + 0xn
-        # Solve the dual
-        # Substitute the original objective function back in
-        
+        self.debug_print(self.s_dict)
+        self.debug_print("Dictionary is not feasible, attempting auxillery problem")
+
         orig_fn = self.s_dict.as_dual_init()
-        self.solve(auxillery=True)
+        self.solve()
         
-        if self.s_dict.get_state() == SimplexState.OPTIMAL and self.s_dict.get_objective_value() == 0:
-            self.debug_print("Dual problem was solvable and optimal value was 0")
+        if self.s_dict.get_state() == SimplexState.OPTIMAL:
+            self.debug_print("Dual problem was solvable!")
+
+            # take the dual to get our original problem in terms of the dual-feasible dictionary
+            self.s_dict.as_dual_nf()
+
+            orig_vars = list(orig_fn.itervars())
+
+            for var in orig_vars:
+                basis = self.s_dict.get_basis_by_varname(var.varname)
+                if basis is not None:
+                    orig_fn.substitute(var.varname, basis.itervars(include_constant=True))
+
+            self.debug_print("Transformed function:")
+            self.debug_print(orig_fn)
+
+            self.s_dict.set_objective_function(orig_fn)
+
             return True
 
         return False
 
-    def solve(self, auxillery=False):
-        if auxillery:
-            self.debug_print("SOLVING AUXILLERY PROBLEM!")
-
+    def solve(self):
         if not self.s_dict.get_state() == SimplexState.FEASIBLE:
             self.make_feasible()
 
         while self.s_dict.get_state() == SimplexState.FEASIBLE:
-            (entering_var, leaving_expr) = self.s_dict.get_pivot(PivotMethod.LARGEST_COEFFICIENT)
+            (entering_var, leaving_expr) = self.s_dict.get_pivot(self.config.pivot_method)
             
             if self.s_dict.get_state() == SimplexState.FEASIBLE:
                 self.s_dict.pivot(entering_var, leaving_expr)
