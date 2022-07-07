@@ -205,7 +205,7 @@ class LinearExpression():
         self.set_expression(lhs, rhs)
     
     def rhs_vars(self):
-        return list[self.__rhs.keys]
+        return [vname for vname in list(self.__rhs.keys()) if vname != Variable.CONSTANT]
 
     def num_terms(self):
         """ -1 for constant term """

@@ -31,7 +31,7 @@ class SimplexSolver():
         self.debug_print("Dictionary is not feasible, attempting auxillery problem")
 
         orig_fn = self.s_dict.as_dual_init()
-        self.solve()
+        self.solve(auxillery=True)
         
         if self.s_dict.get_state() == SimplexState.OPTIMAL:
             self.debug_print("Dual problem was solvable!")
@@ -52,12 +52,18 @@ class SimplexSolver():
             self.s_dict.set_objective_function(orig_fn)
 
             return True
+        else:
+            self.s_dict.as_dual_nf()
+            self.s_dict.set_objective_function(orig_fn)
 
+        self.debug_print("Dual problem was not solvable.")
         return False
 
-    def solve(self):
-        if not self.s_dict.get_state() == SimplexState.FEASIBLE:
-            self.make_feasible()
+    def solve(self, auxillery = False):
+        if not self.s_dict.get_state() == SimplexState.FEASIBLE and not auxillery:
+            if not self.make_feasible():
+                self.print_result(SimplexState.INFEASIBLE)
+                return
 
         while self.s_dict.get_state() == SimplexState.FEASIBLE:
             (entering_var, leaving_expr) = self.s_dict.get_pivot(self.config.pivot_method)
@@ -67,11 +73,21 @@ class SimplexSolver():
                 self.debug_print(repr(self))
                 self.debug_print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}") 
             
-        state = self.s_dict.get_state()
+        if not auxillery:
+            state = self.s_dict.get_state()
+            self.print_result(state)
+
+    def print_result(self, state):
         if state == SimplexState.OPTIMAL:
             self.debug_print("Optimal Dictionary:")
             self.debug_print(repr(self))
             self.debug_print(f"Objective value: {self.s_dict.objective_function.get_constant().coefficient}")
+            objective_value = self.s_dict.objective_function.get_constant().coefficient
+            print("optimal")
+            print(f'{float(objective_value):.7f}')
+            basis_sol = self.s_dict.get_basis_values()
+            print(' '.join([f'{float(value):.7f}' for (_, value) in basis_sol]))
+
         elif state == SimplexState.INFEASIBLE:
             self.debug_print("INFEASIBLE!")
             self.debug_print(repr(self))

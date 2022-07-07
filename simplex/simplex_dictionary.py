@@ -43,6 +43,21 @@ class SimplexDictionary():
         if self.DEBUG:
             print(*args, **kwargs)
 
+    def get_basis_values(self):
+        """
+        """
+
+        basis_sol = []
+
+        for basis_expr in self.basis_exprs:
+            var = basis_expr.get_lhs()
+            if var.varname in self.x_vars:
+                basis_sol += [(var.varname, basis_expr.get_constant().coefficient)]
+
+        basis_sol.sort(key=lambda v: v[0])
+        return basis_sol
+
+
     def get_objective_value(self):
         return self.objective_function.get_constant().coefficient
 
@@ -302,6 +317,10 @@ class SimplexDictionary():
 
         return next((expr for expr in basis_exprs if expr.varname() == varname), None)
     
+    def deepclone(self):
+        dict = SimplexDictionary(self.objective_function, self.basis_exprs)
+        return dict
+
     def deepequals(self, other_dict: 'SimplexDictionary'):
         """ 
             check everything is identical
