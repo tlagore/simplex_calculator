@@ -87,6 +87,12 @@ class SimplexDictionary():
 
         # if we are already a dual, then we name variables x, otherwise y if we are turning into a dual
         dual_prefix = 'x' if self.is_dual else 'y'
+        dual_replace = 'y' if self.is_dual else 'x'
+
+        # TODO: Need to create a lookup dict that replaces
+        # x1-n <-> yn+1->yn+m
+        # xn+1-n+m <-> y1-m
+        # variable names are coming out wrong
 
         for var in self.objective_function.itervars():
             if var.varname == Variable.CONSTANT:
