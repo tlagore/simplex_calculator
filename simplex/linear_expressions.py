@@ -1,4 +1,3 @@
-from ast import Expression
 from fractions import Fraction
 
 class Variable():
@@ -295,16 +294,19 @@ class LinearExpression():
     def deepequals(self, other: 'LinearExpression'):
         """ Check if expression other deepequals self
             This does not care the order of the variables
-        """
-        equal = True
 
-        equal = equal and other.__lhs == self.__lhs
+            deepequals is onlyt used for testing, so it has print statements in it
+        """
+        if other.__lhs != self.__lhs:
+            return False
 
         for key, var in self.__rhs.items():
             other_var = other.get_var(key)
-            equal = equal and var.coefficient == other_var.coefficient
+            if var.coefficient != other_var.coefficient:
+                print(f"Variable: '{key}' did not match. {var.coefficient} != {other_var.coefficient}")
+                return False
 
-        return equal
+        return True
 
     def __repr__(self):
         rhs_str = ""

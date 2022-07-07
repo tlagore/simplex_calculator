@@ -66,6 +66,11 @@ class SimplexDictionary():
 
         self.is_dual = not self.is_dual
 
+        self.num_obj_variables = self.objective_function.num_terms()
+        self.num_slack_variables = len(self.basis_exprs)
+        self.num_variables = self.num_obj_variables + self.num_slack_variables 
+        self.update_state()
+
     def __get_dual_basis(self):
         dual_basis = []
         
@@ -242,11 +247,43 @@ class SimplexDictionary():
         return optimal
     
     def deepequals(self, other_dict: 'SimplexDictionary'):
-        """ check everything is identical"""
-        equals = self.objective_function.deepequals(other_dict.objective_function)
+        """ 
+            check everything is identical
+        
+            deepequals is onlyt used for testing duality, so it has print statements in it
+        """
+        if not self.objective_function.deepequals(other_dict.objective_function):
+            return False
         
         for basis_expr in self.basis_exprs:
-            other_expr = next((expr for expr in other_dict.basis_exprs if expr.get_lhs() == 'value'), None)
+            other_expr = next((expr for expr in other_dict.basis_exprs if expr.varname() == basis_expr.varname()), None)
+            if other_expr is None:
+                print(f"Could not find expression in other for variable '{basis_expr.varname}'")
+                return False
+
+            if not self.expression_equals(basis_expr, other_expr):
+                return False
+
+        return True
+            
+
+    def expression_equals(self, first: LinearExpression, second: LinearExpression):
+        if first.num_terms() != second.num_terms():
+            return False
+
+        for var in first.itervars():
+            comp_var = second.get_var(var.varname)
+
+            if comp_var is not None:
+                if comp_var.coefficient != var.coefficient:
+                    print(f"var: {var.varname} coefficients {comp_var.coefficient} != {var.coefficient}")
+                    return False
+            else:
+                print(f"var: '{var.varname}' other did not contain var.")
+                return False
+
+        return True
+
 
     def __repr__(self):
         msg = '----------------------------------\n'
