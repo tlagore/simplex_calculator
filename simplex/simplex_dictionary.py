@@ -19,6 +19,7 @@ class SimplexConfig():
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
 
 class SimplexDictionary():
+    DEBUG = True
     def __init__(self, objective_function: LinearExpression, constraints: list[LinearExpression]):
         """ """
         self.basis_exprs = [constraint.deepclone() for constraint in constraints]
@@ -33,6 +34,13 @@ class SimplexDictionary():
         self.num_slack_variables = len(constraints)
         self.num_variables = self.num_obj_variables + self.num_slack_variables 
         self.update_state()
+
+    def debug_print(self, *args, **kwargs):
+        if self.DEBUG:
+            print(*args, **kwargs)
+
+    def get_objective_value(self):
+        return self.objective_function.get_constant().coefficient
 
     def __is_feasible(self):
         for basis_expr in self.basis_exprs:
@@ -258,7 +266,7 @@ class SimplexDictionary():
         for basis_expr in self.basis_exprs:
             other_expr = next((expr for expr in other_dict.basis_exprs if expr.varname() == basis_expr.varname()), None)
             if other_expr is None:
-                print(f"Could not find expression in other for variable '{basis_expr.varname}'")
+                self.debug_print(f"Could not find expression in other for variable '{basis_expr.varname}'")
                 return False
 
             if not self.expression_equals(basis_expr, other_expr):
@@ -276,10 +284,10 @@ class SimplexDictionary():
 
             if comp_var is not None:
                 if comp_var.coefficient != var.coefficient:
-                    print(f"var: {var.varname} coefficients {comp_var.coefficient} != {var.coefficient}")
+                    self.debug_print(f"var: {var.varname} coefficients {comp_var.coefficient} != {var.coefficient}")
                     return False
             else:
-                print(f"var: '{var.varname}' other did not contain var.")
+                self.debug_print(f"var: '{var.varname}' other did not contain var.")
                 return False
 
         return True
