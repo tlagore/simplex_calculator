@@ -1,7 +1,7 @@
 INPUT_DIR=$1
 OUTPUT_DIR=$2
 
-if [[ ! -d "$OUTPUT_DIR" ]]
+if [ ! -d "$OUTPUT_DIR" ]
 then
     echo "Did not exist"
     mkdir -p "$OUTPUT_DIR"
