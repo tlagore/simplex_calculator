@@ -4,6 +4,9 @@ from simplex.linear_expressions import LinearExpression
 from simplex.simplex_dictionary import SimplexDictionary, PivotMethod, SimplexState
 
 class SimplexStats():
+    num_variables = 0
+    num_constraints = 0
+
     num_pivots = 0
     num_degenerate_pivots = 0
     solution_time = 0
@@ -36,6 +39,8 @@ class SimplexStats():
 
     def print_stats(self):
         self.__print_header()
+        print("{0:40}{1:>10}".format('number of variables: ', self.num_variables))
+        print("{0:40}{1:>10}".format('number of constraints: ', self.num_constraints))
         print("{0:40}{1:>10}".format("required auxiliary:", "Yes" if self.required_auxiliary else "No"))
         if self.required_auxiliary:
             self.__print_stats(self.aux_stats, True)
@@ -56,6 +61,8 @@ class SimplexSolver():
         self.s_dict = SimplexDictionary(objective_function, constraints)
         self.degenerate_count = 0
         self.stats = SimplexStats()
+        self.stats.num_variables = self.s_dict.num_variables
+        self.stats.num_constraints = len(constraints)
 
         if config is not None:
             self.config = config
