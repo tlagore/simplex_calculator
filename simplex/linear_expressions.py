@@ -1,4 +1,5 @@
 from fractions import Fraction
+import functools
 
 class Variable():
     """ """
@@ -29,6 +30,43 @@ class Variable():
         n = Variable(self.varname, -self.coefficient)
 
         return n
+
+    def var_comp(self, other: 'Variable'):
+        if self.varname == Variable.CONSTANT:
+            return -1
+        
+        if other.varname == Variable.CONSTANT:
+            return 1
+
+        cmp = self.__similarity_comp(self.varname, other.varname, Variable.EPSILON)
+        if cmp == 0:
+            cmp = self.__similarity_comp(self.varname, other.varname, 'x')
+            if cmp == 0:
+                return self.__similarity_comp(self.varname, other.varname, 'y')
+            else:
+                return cmp
+        else:
+            return cmp
+
+    def __var_idx(self, var):
+        if var == Variable.CONSTANT:
+            return 0
+        else:
+            return int(var.replace('x', '').replace('y', '').replace(Variable.EPSILON, ''))
+
+    def __similarity_comp(self, a, b, prefix):
+        if a.startswith(prefix):
+            if b.startswith(prefix):
+                if self.__var_idx(a) < self.__var_idx(b):
+                    return -1
+                else:
+                    return 1
+            else:
+                return -1
+        elif b.startswith(prefix):
+            return 1
+        else:
+            return 0
 
     # >
     def __gt__(self, other: 'Variable') -> bool:
@@ -219,22 +257,22 @@ class LinearExpression():
 
     def compare_eps(self, other: 'LinearExpression'):
         """
-        returns +1 if the passed in expression is smaller in terms of epsilon
-        returns -1 if the passed in expression is larger in terms of epsilon
+        returns -1 if the passed in expression is smaller in terms of epsilon
+        returns +1 if the passed in expression is larger in terms of epsilon
 
         0 cannot occur
         """
         
         # Note a larger epsilon index means the epsilon is smaller
-        for i in range(1, self.num_epsilon+1):
+        for i in range(self.num_epsilon, 0):
             var = f'{Variable.EPSILON}{i}'
             mine = self.get_var(var)
             theirs = other.get_var(var)
 
             if mine.coefficient > theirs.coefficient:
-                return 1
-            elif theirs.coefficient > mine.coefficient:
                 return -1
+            elif theirs.coefficient > mine.coefficient:
+                return 1
 
         return 0
 
@@ -372,7 +410,9 @@ class LinearExpression():
         rhs_str = ""
 
         rhs_vars = list(self.__rhs.values())
-        rhs_vars.sort(key=lambda v: v.varname)
+        rhs_vars.sort(key=functools.cmp_to_key(lambda x,y: x.var_comp(y)))
+
+        # rhs_vars.sort(key=lambda v: v.varname)
 
         for var in rhs_vars:
             rhs_str += repr(var)
