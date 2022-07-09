@@ -51,7 +51,7 @@ class SimplexConfig():
 class SimplexSolver():
     DEBUG = False
 
-    def __init__(self, objective_function: LinearExpression, constraints: list[LinearExpression], config: SimplexConfig=None):
+    def __init__(self, objective_function: LinearExpression, constraints, config: SimplexConfig=None):
         """ """
         self.s_dict = SimplexDictionary(objective_function, constraints)
         self.degenerate_count = 0

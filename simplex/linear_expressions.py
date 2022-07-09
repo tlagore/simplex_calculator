@@ -201,7 +201,7 @@ class LinearExpression():
             substitute: substitude the given variable with subexpression (list of variables) 
     """
     
-    def __init__(self, lhs: Variable, rhs: list[Variable], epsilon=None):
+    def __init__(self, lhs: Variable, rhs, epsilon=None):
         """
         if epsilon is supplied, it is expected to be a tuple specificing
         (my_epsilon, num_epsilons)
@@ -258,7 +258,7 @@ class LinearExpression():
 
         self.num_epsilon = num_epsilon
 
-    def set_expression(self, lhs: Variable, rhs: list[Variable], epsilon=None):
+    def set_expression(self, lhs: Variable, rhs, epsilon=None):
         """
         """
         self.__lhs = lhs
@@ -305,7 +305,7 @@ class LinearExpression():
     def varname(self):
         return self.__lhs.varname
 
-    def substitute(self, varname: str, expr: list[Variable]):
+    def substitute(self, varname: str, expr):
         if varname not in self.__rhs:
             raise Exception(f"substitute():: Expression does not have '{varname}' as a variable")
 

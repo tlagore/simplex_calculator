@@ -25,7 +25,7 @@ class SimplexConfig():
 class SimplexDictionary():
     DEBUG = False
 
-    def __init__(self, objective_function: LinearExpression, constraints: list[LinearExpression]):
+    def __init__(self, objective_function: LinearExpression, constraints):
         """ """
         self.basis_exprs = [constraint.deepclone() for constraint in constraints]
         self.objective_function = objective_function.deepclone()
@@ -327,7 +327,7 @@ class SimplexDictionary():
 
         return optimal
 
-    def get_basis_by_varname(self, varname: str, basis_exprs: list[LinearExpression] = None) -> LinearExpression:
+    def get_basis_by_varname(self, varname: str, basis_exprs = None) -> LinearExpression:
         """
         If the variable name exists in the basis, returns the basis expression, otherwise returns None
         """
