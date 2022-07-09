@@ -1,31 +1,44 @@
 from fractions import Fraction
 from simplex.linear_expressions import LinearExpression, Variable
-from simplex.simplex_dictionary import SimplexDictionary
+from simplex.simplex_solver import SimplexSolver
 
 def parse(in_file):
     """
     """
     line = in_file.readline().strip()
-    obj_fn = parse_obj_function(line)
-    print(obj_fn)
+    (obj_fn, n) = parse_obj_function(line)
 
+    constraints = []
+    idx = 0
     for line in in_file:
-        print(line.strip())
+        constraint = parse_constraint(line, idx+n)
+        constraints.append(constraint)
+        idx +=1
+    
+    return SimplexSolver(obj_fn, constraints)
+    
 
+def parse_constraint(line, constraint_idx):
+    parts = line.split()
+    bound = parts.pop()
+
+    lhs = Variable(f'x{constraint_idx}', Fraction(1))
+    rhs = parse_rhs(parts, bound)
+
+    return LinearExpression(lhs, rhs)
 
 def parse_obj_function(line):
     parts = line.split()
 
     lhs = Variable('z', Fraction(1))
+    rhs = parse_rhs(parts, 0, True)
 
-    rhs = []
-    for part, idx in enumerate(parts):
-        
-        # varname = 'x{0}'.format(str(idx+1))
+    return (LinearExpression(lhs, rhs), len(rhs))
 
+def parse_rhs(parts, constant, obj_fn=False):
+    rhs = [Variable(Variable.CONSTANT, Fraction(constant))]
+    for idx, part in enumerate(parts):
         varname = f'x{idx+1}'
-
-
-        rhs.append(Variable(varname, Fraction(part)))
-
-    return LinearExpression(lhs, rhs)
+        coef = Fraction(part) if obj_fn else -Fraction(part)
+        rhs.append(Variable(varname, coef))
+    return rhs

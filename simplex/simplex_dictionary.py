@@ -8,7 +8,8 @@ from fractions import Fraction
 class PivotMethod(Enum):
     LARGEST_COEFFICIENT = 1
     LARGEST_INCREASE = 2
-    BLANDS = 3
+    LEXICOGRAPHICAL = 3
+    BLANDS = 4
 
 class SimplexState(Enum):
     FEASIBLE = 1
@@ -193,13 +194,12 @@ class SimplexDictionary():
 
         if pivot_type == PivotMethod.LARGEST_COEFFICIENT:
             (entering_var, leaving_expr) = self.__get_largest_coefficient_pivot()
-            leaving_expr = self.__get_leaving_variable(entering_var)
-        elif pivot_type == PivotMethod.LARGEST_INCREASE:
-            (entering_var, leaving_expr) = self.__get_largest_increase_pivot()
+        elif pivot_type == PivotMethod.LEXICOGRAPHICAL:
+            (entering_var, leaving_expr) = self.__get_lexicographic_pivot()
 
         return (entering_var, leaving_expr)
 
-    def __get_largest_coefficient_pivot(self) -> Tuple[Variable, Variable]:
+    def __get_largest_coefficient_pivot(self) -> Tuple[Variable, LinearExpression]:
         max_val = -inf
         entering_var = None
 
@@ -218,6 +218,11 @@ class SimplexDictionary():
 
         return (entering_var, leaving_expr)
 
+    def __get_lexicographic_pivot(self) -> Tuple[Variable, LinearExpression]:
+        """
+        """
+        
+
     def __get_leaving_variable(self, entering_var: Variable) -> LinearExpression:
         """
         This function just looks for the lowest bound for an entering_variable and returns that basis expression
@@ -230,7 +235,7 @@ class SimplexDictionary():
             candidate = basis_expr.get_var(entering_var.varname)
 
             # only look at expressions with valid bounds
-            if candidate.coefficient > 0:
+            if candidate.coefficient >= 0:
                 continue
 
             constant = basis_expr.get_constant()
