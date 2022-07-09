@@ -108,9 +108,6 @@ class SimplexSolver():
             self.s_dict.set_objective_function(orig_fn)
 
             return True
-        else:
-            self.s_dict.as_dual_nf()
-            self.s_dict.set_objective_function(orig_fn)
 
         self.debug_print("Dual problem was not solvable.")
         return False
