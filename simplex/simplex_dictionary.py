@@ -1,4 +1,4 @@
-from cmath import e
+import functools
 from math import inf
 from typing import Tuple
 from simplex.linear_expressions import LinearExpression, Variable
@@ -24,7 +24,7 @@ class SimplexConfig():
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
 
 class SimplexDictionary():
-    DEBUG = True
+    DEBUG = False
 
     def __init__(self, objective_function: LinearExpression, constraints: list[LinearExpression]):
         """ """
@@ -43,7 +43,7 @@ class SimplexDictionary():
 
     def debug_print(self, *args, **kwargs):
         if self.DEBUG:
-            print('DEBUG::\t\t', end='')
+            print('-- ', end='')
             print(*args, **kwargs)
 
     def get_basis_values(self):
@@ -127,25 +127,25 @@ class SimplexDictionary():
     def __get_dual_basis(self, dual_lookup):
         dual_basis = []
         
-        # starting index for "slack" variables in dual
-        basis_var_idx = self.m + 1
+        # for setting epsilon
+        basis_var_idx = 1
+
+        num_basis = len(self.objective_function.rhs_vars())
 
         for var in self.objective_function.itervars():
             # Each dual expression has negative constant of coefficient of primal objective function
             dual_expr = [Variable(Variable.CONSTANT, Fraction(-var.coefficient))]
             
-            idx = 1
             # iterate primal basis expressions to extract the variable and create
             # a dual basis expression in the dual dictionary
             for primal_expr in self.basis_exprs:
                 next_var = primal_expr.get_var(var.varname)
                 dual_varname = dual_lookup[primal_expr.varname()]
                 dual_expr += [Variable(dual_varname, Fraction(-next_var.coefficient))]
-                idx += 1
 
             dual_slack_name = dual_lookup[var.varname]
             dual_slack_var = Variable(dual_slack_name, Fraction(1))
-            dual_basis += [LinearExpression(lhs=dual_slack_var, rhs=dual_expr)]
+            dual_basis += [LinearExpression(lhs=dual_slack_var, rhs=dual_expr, epsilon=(basis_var_idx, num_basis))]
 
             basis_var_idx += 1
 
@@ -221,12 +221,14 @@ class SimplexDictionary():
     def __get_lexicographic_pivot(self) -> Tuple[Variable, LinearExpression]:
         """
         """
-        
+
 
     def __get_leaving_variable(self, entering_var: Variable) -> LinearExpression:
         """
         This function just looks for the lowest bound for an entering_variable and returns that basis expression
         """
+
+        leaving_exprs = []
 
         leaving_expr = None
         smallest_bound = inf
@@ -247,12 +249,23 @@ class SimplexDictionary():
 
             if bound < smallest_bound:
                 smallest_bound = bound
-                leaving_expr = basis_expr
+                leaving_exprs = [basis_expr]
+            elif bound == smallest_bound:
+                leaving_exprs.append(basis_expr)
 
-        if leaving_expr is None:
+        if len(leaving_exprs) == 0:
             self.__state = SimplexState.UNBOUNDED
+        else:
+            leaving_expr = self.__break_ties(leaving_exprs)
 
         return leaving_expr
+
+    def __break_ties(self, expressions:list[LinearExpression]):
+        # smallest_eps
+        self.debug_print('Breaking ties:\n{0}'.format("\n".join([str(expression) for expression in expressions])))
+        expressions.sort(key=functools.cmp_to_key(lambda x,y: x.compare_eps(y)))
+        self.debug_print(f'Chose: {expressions[0]}')
+        return expressions[0]
 
     def pivot(self, entering_var, leaving_expr):
         """

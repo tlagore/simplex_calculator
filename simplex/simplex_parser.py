@@ -9,16 +9,22 @@ def parse(in_file):
     (obj_fn, n) = parse_obj_function(line)
 
     constraints = []
-    idx = 0
+    basis_count = 0
     for line in in_file:
-        constraint = parse_constraint(line, idx+n)
+        constraint = parse_constraint(line, basis_count+n)
         constraints.append(constraint)
-        idx +=1
-    
-    return SimplexSolver(obj_fn, constraints)
-    
+        basis_count += 1
 
-def parse_constraint(line, constraint_idx):
+    for i, constraint in enumerate(constraints):
+        constraint.set_epsilon(i+1, basis_count)
+
+    return SimplexSolver(obj_fn, constraints)
+
+def parse_constraint(line, constraint_idx) -> LinearExpression:
+    """
+    basis_idx is a 0 indexed index for the basis (for setting epsilon)
+    constraint_idx is the index of this basis variable
+    """
     parts = line.split()
     bound = parts.pop()
 

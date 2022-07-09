@@ -1,9 +1,11 @@
 from fractions import Fraction
+from typing import Tuple
 
 class Variable():
     """ """
 
-    CONSTANT = 'C'
+    CONSTANT = 'c'
+    EPSILON = 'e'
 
     def __init__(self, varname: str, coefficient: Fraction):
         """ """
@@ -200,9 +202,14 @@ class LinearExpression():
             substitute: substitude the given variable with subexpression (list of variables) 
     """
     
-    def __init__(self, lhs: Variable, rhs: list[Variable]):
-        """ """
-        self.set_expression(lhs, rhs)
+    def __init__(self, lhs: Variable, rhs: list[Variable], epsilon: Tuple[int,int]=None):
+        """
+        if epsilon is supplied, it is expected to be a tuple specificing
+        (my_epsilon, num_epsilons)
+        """
+        self.num_epsilon = 0
+        self.set_expression(lhs, rhs, epsilon)
+        # used for the lexicographic method. epsilon is simply an integer 1-m. Used for breaking ties
     
     def rhs_vars(self):
         return [vname for vname in list(self.__rhs.keys()) if vname != Variable.CONSTANT]
@@ -211,7 +218,48 @@ class LinearExpression():
         """ -1 for constant term """
         return len(self.__rhs) - 1
 
-    def set_expression(self, lhs: Variable, rhs: list[Variable]):
+    def compare_eps(self, other: 'LinearExpression'):
+        """
+        returns +1 if the passed in expression is smaller in terms of epsilon
+        returns -1 if the passed in expression is larger in terms of epsilon
+
+        0 cannot occur
+        """
+        
+        # Note a larger epsilon index means the epsilon is smaller
+        for i in range(1, self.num_epsilon+1):
+            var = f'{Variable.EPSILON}{i}'
+            mine = self.get_var(var)
+            theirs = other.get_var(var)
+
+            if mine.coefficient > theirs.coefficient:
+                return 1
+            elif theirs.coefficient > mine.coefficient:
+                return -1
+
+        return 0
+
+    def set_epsilon(self, my_epsilon, num_epsilon):
+        """
+        THIS SHOULD ONLY BE CALLED IMMEDIATELY AFTER A BASIS EXPR IS CREATED
+
+        Also will delete any epsilon variables from this expression and recreate them
+        """
+        for var in list(self.__rhs.keys()):
+            if var.startswith(Variable.EPSILON):
+                del self.__rhs[var]
+
+        for i in range(1,num_epsilon+1):
+            if i == my_epsilon:
+                var = Variable(f'{Variable.EPSILON}{i}', Fraction(1))
+            else:
+                var = Variable(f'{Variable.EPSILON}{i}', Fraction(0))
+
+            self.__rhs = self.__rhs | {var.varname:var}
+
+        self.num_epsilon = num_epsilon
+
+    def set_expression(self, lhs: Variable, rhs: list[Variable], epsilon=None):
         """
         """
         self.__lhs = lhs
@@ -219,6 +267,10 @@ class LinearExpression():
         # create a dictionary for quick lookup of variables
         # deepclone in case caller is reusing variables
         self.__rhs = {val.varname:val.deepclone() for val in rhs}
+
+        if epsilon:
+            self.set_epsilon(epsilon[0], epsilon[1])
+
         if Variable.CONSTANT not in self.__rhs:
             raise Exception(f"Cannot create a linear expression without a constant term. This can be 0, but must exist with the variable name '{Variable.CONSTANT}'")
 
@@ -283,14 +335,19 @@ class LinearExpression():
 
     def itervars(self, include_constant=False):
         for var in self.__rhs.values():
+            if var.varname.startswith(Variable.EPSILON):
+                continue
+
             if include_constant or var.varname != Variable.CONSTANT:
                 yield var.deepclone()
 
     def deepclone(self):
         lhs = self.__lhs.deepclone()
         rhs = [var.deepclone() for var in self.__rhs.values()]
+        new = LinearExpression(lhs, rhs)
+        new.num_epsilon = self.num_epsilon
 
-        return LinearExpression(lhs, rhs)
+        return new
 
     def deepequals(self, other: 'LinearExpression'):
         """ Check if expression other deepequals self

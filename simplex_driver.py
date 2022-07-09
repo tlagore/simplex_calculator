@@ -9,7 +9,12 @@ def main():
             debug = True
 
     solver = sp.parse(sys.stdin)
-    solver.DEBUG = debug
+
+    if debug:
+        print("Starting dictionary:")
+        print(solver.s_dict)
+        solver.enable_debug()
+
     solver.solve()
 
 if __name__ == "__main__":
