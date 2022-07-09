@@ -1,3 +1,8 @@
+## Rational is not used in the solution, felt like a shame to delete it though
+##
+## Basically just implements the fractions.Fraction class
+## that python already has built in (with less features)
+
 from decimal import DivisionByZero
 import math
 import operator

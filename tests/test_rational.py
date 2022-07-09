@@ -1,8 +1,11 @@
+## Rational is not used in the solution, felt like 
+## A shame to delete it though
+
 from decimal import DivisionByZero
 import pytest
 
 import operator
-from ..rational import Rational
+from ..util.rational import Rational
 
 def test_init():
     exception_cases = [

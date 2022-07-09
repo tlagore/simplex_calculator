@@ -192,10 +192,9 @@ class SimplexDictionary():
         entering_var = None
         leaving_expr = None
 
+        # could add new pivot types here
         if pivot_type == PivotMethod.LARGEST_COEFFICIENT:
             (entering_var, leaving_expr) = self.__get_largest_coefficient_pivot()
-        elif pivot_type == PivotMethod.LEXICOGRAPHICAL:
-            (entering_var, leaving_expr) = self.__get_lexicographic_pivot()
 
         return (entering_var, leaving_expr)
 
@@ -207,7 +206,7 @@ class SimplexDictionary():
             if var.coefficient > 0 and var.coefficient > max_val:
                 max_val = var.coefficient
                 entering_var = var
-
+        
         if entering_var is None:
             if self.__optimal():
                 self.__state == SimplexState.OPTIMAL
@@ -217,11 +216,6 @@ class SimplexDictionary():
             leaving_expr = self.__get_leaving_variable(entering_var)
 
         return (entering_var, leaving_expr)
-
-    def __get_lexicographic_pivot(self) -> Tuple[Variable, LinearExpression]:
-        """
-        """
-
 
     def __get_leaving_variable(self, entering_var: Variable) -> LinearExpression:
         """

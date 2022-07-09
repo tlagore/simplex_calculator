@@ -8,10 +8,39 @@ class SimplexStats():
     num_degenerate_pivots = 0
     solution_time = 0
 
+    # if we solve an auxilery problem
+    required_auxilliary = False
+    aux_stats: 'SimplexStats' = None
+
+    def is_auxilliary(self):
+        self.required_auxilliary = True
+        self.aux_stats = SimplexStats()
+        self.aux_stats.num_pivots = self.num_pivots
+        self.aux_stats.num_degenerate_pivots = self.num_degenerate_pivots
+        self.aux_stats.solution_time = self.solution_time
+
+        self.num_pivots = 0
+        self.num_degenerate_pivots = 0
+        self.solution_time = 0
+
+    def __print_header(self):
+        print("Simplex Solver Problem Stats")
+        print("{0:40}{1:10}".format("Stat", "Value"))
+        print('-'*50)
+
+    def __print_stats(self, stats: 'SimplexStats', aux: bool):
+        postfix = '-aux' if aux else ''
+        print("{0:40}{1:10}".format(f"number of pivots{postfix}:", stats.num_pivots))
+        print("{0:40}{1:10}".format(f"number of degenerate pivots{postfix}:", stats.num_degenerate_pivots))
+        print("{0:40}{1:10.2f}s".format(f"solution time{postfix}:", stats.solution_time))
+
     def print_stats(self):
-        print("{0:40}{1}".format("number of pivots:", self.num_pivots))
-        print("{0:40}{1}".format("number of degenerate pivots:", self.num_degenerate_pivots))
-        print("{0:40}{1:.2f}s".format("solution time:", self.solution_time))
+        self.__print_header()
+        print("{0:40}{1:10}".format("required auxilliary:", "Yes" if self.required_auxilliary else "No"))
+        if self.required_auxilliary:
+            self.__print_stats(self.aux_stats, True)
+            print('')
+        self.__print_stats(self, False)
 
 class SimplexConfig():
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
@@ -25,8 +54,8 @@ class SimplexSolver():
     def __init__(self, objective_function: LinearExpression, constraints: list[LinearExpression], config: SimplexConfig=None):
         """ """
         self.s_dict = SimplexDictionary(objective_function, constraints)
-        self.__cycling = False
         self.degenerate_count = 0
+        self.stats = SimplexStats()
 
         if config is not None:
             self.config = config
@@ -46,7 +75,7 @@ class SimplexSolver():
 
     def make_feasible(self):
         """ 
-        Attempt to make the dictionary feasibly by solving an auxillery problem.
+        Attempt to make the dictionary feasibly by solving an auxilliary problem.
         Uses the dual initialization technique
         
         This does not necessarily succeed
@@ -55,10 +84,10 @@ class SimplexSolver():
         """
 
         self.debug_print(self.s_dict)
-        self.debug_print("Dictionary is not feasible, attempting auxillery problem")
+        self.debug_print("Dictionary is not feasible, attempting auxilliary problem")
 
         orig_fn = self.s_dict.as_dual_init()
-        self.solve(auxillery=True)
+        self.solve(auxilliary=True)
         
         if self.s_dict.get_state() == SimplexState.OPTIMAL:
             self.debug_print("Dual problem was solvable!")
@@ -86,12 +115,10 @@ class SimplexSolver():
         self.debug_print("Dual problem was not solvable.")
         return False
 
-    def solve(self, auxillery = False):
-        stats = SimplexStats()
-
+    def solve(self, auxilliary = False):
         start_time = time.time()
 
-        if not self.s_dict.get_state() == SimplexState.FEASIBLE and not auxillery:
+        if not self.s_dict.get_state() == SimplexState.FEASIBLE and not auxilliary:
             if not self.make_feasible():
                 self.print_result(SimplexState.INFEASIBLE)
                 return
@@ -105,18 +132,18 @@ class SimplexSolver():
                 self.debug_print(repr(self))
                 self.debug_print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}") 
                 updated_val = self.s_dict.get_objective_value()
-                stats.num_pivots += 1
+                self.stats.num_pivots += 1
                 
                 if cur_val == updated_val:
-                    stats.num_degenerate_pivots += 1
+                    self.stats.num_degenerate_pivots += 1
             
-        if not auxillery:
+        self.stats.solution_time = time.time() - start_time
+        
+        if not auxilliary:
             state = self.s_dict.get_state()
             self.print_result(state)
-
-        stats.solution_time = time.time() - start_time
-
-        return stats
+        else:
+            self.stats.is_auxilliary()
 
     def print_result(self, state):
         if state == SimplexState.OPTIMAL:

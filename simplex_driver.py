@@ -19,10 +19,10 @@ def main():
         print(solver.s_dict)
         solver.enable_debug()
 
-    stats = solver.solve()
+    solver.solve()
     
     if stats:
-        stats.print_stats()
+        solver.stats.print_stats()
 
 if __name__ == "__main__":
     main()
