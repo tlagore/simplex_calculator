@@ -1,5 +1,4 @@
 from fractions import Fraction
-from typing import Tuple
 
 class Variable():
     """ """
@@ -202,7 +201,7 @@ class LinearExpression():
             substitute: substitude the given variable with subexpression (list of variables) 
     """
     
-    def __init__(self, lhs: Variable, rhs: list[Variable], epsilon: Tuple[int,int]=None):
+    def __init__(self, lhs: Variable, rhs: list[Variable], epsilon=None):
         """
         if epsilon is supplied, it is expected to be a tuple specificing
         (my_epsilon, num_epsilons)

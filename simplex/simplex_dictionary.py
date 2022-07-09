@@ -1,6 +1,5 @@
 import functools
 from math import inf
-from typing import Tuple
 from simplex.linear_expressions import LinearExpression, Variable
 from enum import Enum
 from fractions import Fraction
@@ -198,7 +197,7 @@ class SimplexDictionary():
 
         return (entering_var, leaving_expr)
 
-    def __get_largest_coefficient_pivot(self) -> Tuple[Variable, LinearExpression]:
+    def __get_largest_coefficient_pivot(self):
         max_val = -inf
         entering_var = None
 
