@@ -9,11 +9,11 @@ class SimplexStats():
     solution_time = 0
 
     # if we solve an auxilery problem
-    required_auxilliary = False
+    required_auxiliary = False
     aux_stats: 'SimplexStats' = None
 
-    def is_auxilliary(self):
-        self.required_auxilliary = True
+    def is_auxiliary(self):
+        self.required_auxiliary = True
         self.aux_stats = SimplexStats()
         self.aux_stats.num_pivots = self.num_pivots
         self.aux_stats.num_degenerate_pivots = self.num_degenerate_pivots
@@ -36,8 +36,8 @@ class SimplexStats():
 
     def print_stats(self):
         self.__print_header()
-        print("{0:40}{1:10}".format("required auxilliary:", "Yes" if self.required_auxilliary else "No"))
-        if self.required_auxilliary:
+        print("{0:40}{1:10}".format("required auxiliary:", "Yes" if self.required_auxiliary else "No"))
+        if self.required_auxiliary:
             self.__print_stats(self.aux_stats, True)
             print('')
         self.__print_stats(self, False)
@@ -75,7 +75,7 @@ class SimplexSolver():
 
     def make_feasible(self):
         """ 
-        Attempt to make the dictionary feasibly by solving an auxilliary problem.
+        Attempt to make the dictionary feasibly by solving an auxiliary problem.
         Uses the dual initialization technique
         
         This does not necessarily succeed
@@ -84,10 +84,10 @@ class SimplexSolver():
         """
 
         self.debug_print(self.s_dict)
-        self.debug_print("Dictionary is not feasible, attempting auxilliary problem")
+        self.debug_print("Dictionary is not feasible, attempting auxiliary problem")
 
         orig_fn = self.s_dict.as_dual_init()
-        self.solve(auxilliary=True)
+        self.solve(auxiliary=True)
         
         if self.s_dict.get_state() == SimplexState.OPTIMAL:
             self.debug_print("Dual problem was solvable!")
@@ -115,10 +115,10 @@ class SimplexSolver():
         self.debug_print("Dual problem was not solvable.")
         return False
 
-    def solve(self, auxilliary = False):
+    def solve(self, auxiliary = False):
         start_time = time.time()
 
-        if not self.s_dict.get_state() == SimplexState.FEASIBLE and not auxilliary:
+        if not self.s_dict.get_state() == SimplexState.FEASIBLE and not auxiliary:
             if not self.make_feasible():
                 self.print_result(SimplexState.INFEASIBLE)
                 return
@@ -139,11 +139,11 @@ class SimplexSolver():
             
         self.stats.solution_time = time.time() - start_time
         
-        if not auxilliary:
+        if not auxiliary:
             state = self.s_dict.get_state()
             self.print_result(state)
         else:
-            self.stats.is_auxilliary()
+            self.stats.is_auxiliary()
 
     def print_result(self, state):
         if state == SimplexState.OPTIMAL:
