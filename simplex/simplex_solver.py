@@ -25,7 +25,7 @@ class SimplexStats():
 
     def __print_header(self):
         print("Simplex Solver Problem Stats")
-        print("{0:40}{1:10}".format("Stat", "Value"))
+        print("{0:40}{1:>10}".format("Stat", "Value"))
         print('-'*50)
 
     def __print_stats(self, stats: 'SimplexStats', aux: bool):
@@ -36,7 +36,7 @@ class SimplexStats():
 
     def print_stats(self):
         self.__print_header()
-        print("{0:40}{1:10}".format("required auxiliary:", "Yes" if self.required_auxiliary else "No"))
+        print("{0:40}{1:>10}".format("required auxiliary:", "Yes" if self.required_auxiliary else "No"))
         if self.required_auxiliary:
             self.__print_stats(self.aux_stats, True)
             print('')

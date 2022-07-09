@@ -161,7 +161,8 @@ class SimplexDictionary():
         dual_replace = 'y' if self.is_dual else 'x'
 
         var_lookup = { f'{dual_replace}{i}':f'{dual_prefix}{self.m+i}' for i in range(1, self.n+1)}
-        var_lookup = var_lookup | {f'{dual_replace}{i}':f'{dual_prefix}{i-self.n}' for i in range(self.n+1, self.n+self.m+1)}
+        replace_lookup = {f'{dual_replace}{i}':f'{dual_prefix}{i-self.n}' for i in range(self.n+1, self.n+self.m+1)}
+        var_lookup.update(replace_lookup)
         self.debug_print(f'Variable lookup: {var_lookup}')
 
         return var_lookup

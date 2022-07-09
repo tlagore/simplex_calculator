@@ -254,7 +254,7 @@ class LinearExpression():
             else:
                 var = Variable(f'{Variable.EPSILON}{i}', Fraction(0))
 
-            self.__rhs = self.__rhs | {var.varname:var}
+            self.__rhs[var.varname] = var
 
         self.num_epsilon = num_epsilon
 
