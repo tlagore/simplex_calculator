@@ -253,7 +253,7 @@ class SimplexDictionary():
 
         return leaving_expr
 
-    def __break_ties(self, expressions:list[LinearExpression]):
+    def __break_ties(self, expressions):
         """
         Break ties using the lexicographical method
 
