@@ -1,6 +1,17 @@
 import math
+import time
 from simplex.linear_expressions import LinearExpression
 from simplex.simplex_dictionary import SimplexDictionary, PivotMethod, SimplexState
+
+class SimplexStats():
+    num_pivots = 0
+    num_degenerate_pivots = 0
+    solution_time = 0
+
+    def print_stats(self):
+        print("{0:40}{1}".format("number of pivots:", self.num_pivots))
+        print("{0:40}{1}".format("number of degenerate pivots:", self.num_degenerate_pivots))
+        print("{0:40}{1:.2f}s".format("solution time:", self.solution_time))
 
 class SimplexConfig():
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
@@ -76,45 +87,36 @@ class SimplexSolver():
         return False
 
     def solve(self, auxillery = False):
+        stats = SimplexStats()
+
+        start_time = time.time()
+
         if not self.s_dict.get_state() == SimplexState.FEASIBLE and not auxillery:
             if not self.make_feasible():
                 self.print_result(SimplexState.INFEASIBLE)
                 return
 
         while self.s_dict.get_state() == SimplexState.FEASIBLE:
-            # cur_val = self.s_dict.get_objective_value()
+            cur_val = self.s_dict.get_objective_value()
             (entering_var, leaving_expr) = self.s_dict.get_pivot(self.pivot_method)
             
             if self.s_dict.get_state() == SimplexState.FEASIBLE:
                 self.s_dict.pivot(entering_var, leaving_expr)
                 self.debug_print(repr(self))
                 self.debug_print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}") 
-                # updated_val = self.s_dict.get_objective_value()
-
-                # self.__check_for_cycling(cur_val, updated_val)
+                updated_val = self.s_dict.get_objective_value()
+                stats.num_pivots += 1
+                
+                if cur_val == updated_val:
+                    stats.num_degenerate_pivots += 1
             
         if not auxillery:
             state = self.s_dict.get_state()
             self.print_result(state)
 
-    # might get to delete this
-    # def __check_for_cycling(self, prev_val, updated_val):
-    #     # if we are not currently cycling, but our objective value did not change, increment degenerate_count
-    #     if not self.__cycling and prev_val == updated_val:
-    #         self.degenerate_count += 1
+        stats.solution_time = time.time() - start_time
 
-    #         # if we have hit our degenerate_count threshold, switch our pivot method to avoid cycling
-    #         if self.degenerate_count > self.config.cycle_threshold:
-    #             self.__cycling = True
-    #             self.pivot_method = PivotMethod.LEXICOGRAPHICAL
-
-    #     # if we were cycling, but we have changed the objective function value, update the pivot rule and reset
-    #     # degeneracy counts       
-    #     elif self.__cycling and prev_val != updated_val:
-    #         self.__cycling = False
-    #         self.degenerate_count = 0
-    #         self.pivot_method = self.config.pivot_method
-
+        return stats
 
     def print_result(self, state):
         if state == SimplexState.OPTIMAL:

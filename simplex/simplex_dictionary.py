@@ -261,7 +261,11 @@ class SimplexDictionary():
         return leaving_expr
 
     def __break_ties(self, expressions:list[LinearExpression]):
-        # smallest_eps
+        """
+        Break ties using the lexicographical method
+
+        We sort the expressions by their epsilon values and take the first one
+        """
         self.debug_print('Breaking ties:\n{0}'.format("\n".join([str(expression) for expression in expressions])))
         expressions.sort(key=functools.cmp_to_key(lambda x,y: x.compare_eps(y)))
         self.debug_print(f'Chose: {expressions[0]}')
@@ -283,12 +287,16 @@ class SimplexDictionary():
             
             basis_expr.substitute(entering_var.varname, resultant)
 
+        # check where we are updating state
         self.update_state()
         
     def get_state(self):
         return self.__state
 
     def update_state(self):
+        """
+        """
+
         self.__state = SimplexState.FEASIBLE
             
         if self.__optimal():
@@ -299,7 +307,7 @@ class SimplexDictionary():
             # Need to check if we're unbounded
             # NOTE: This operation is expensive, but we only find all variables one time.
             # If we needed to do this frequently we should make a lookup from variable to 
-            # the expressions it appears in
+            # the expressions it appears in.
             for var in self.objective_function.itervars():
                 if var.coefficient > 0:
                     all_positive = True
