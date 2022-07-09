@@ -269,15 +269,10 @@ class LinearExpression():
             mine = self.get_var(var)
             theirs = other.get_var(var)
 
-            print(f'mine: {mine.coefficient}')
-            print(f'theirs: {theirs.coefficient}')
-
             if mine.coefficient > theirs.coefficient:
                 return -1
             elif theirs.coefficient > mine.coefficient:
                 return 1
-
-        print("UH OH!!!")
 
         return 0
 

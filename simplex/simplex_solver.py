@@ -27,24 +27,27 @@ class SimplexStats():
         self.solution_time = 0
 
     def __print_header(self):
-        print("Simplex Solver Problem Stats")
-        print("{0:40}{1:>10}".format("Stat", "Value"))
-        print('-'*50)
+        print("\nSimplex Solver Problem Stats")
+        print('-'*70)
+        print("| {0:<12}| {1:40}| {2:<10} |".format("Category", "Stat", "Value"))
+        print('-'*70)
 
     def __print_stats(self, stats: 'SimplexStats', aux: bool):
-        postfix = '-aux' if aux else ''
-        print("{0:40}{1:10}".format(f"number of pivots{postfix}:", stats.num_pivots))
-        print("{0:40}{1:10}".format(f"number of degenerate pivots{postfix}:", stats.num_degenerate_pivots))
-        print("{0:40}{1:10.2f}s".format(f"solution time{postfix}:", stats.solution_time))
+        p_type = 'Auxiliary' if aux else 'Main L.P.'
+        print("| {0:<12}| {1:40}| {2:10} |".format('', f"number of pivots:", stats.num_pivots))
+        print("| {0:<12}| {1:40}| {2:10} |".format(p_type, f"number of degenerate pivots:", stats.num_degenerate_pivots))
+        print("| {0:<12}| {1:40}| {2:9.2f}s |".format('', f"solution time:", stats.solution_time))
+        print('-'*70)
 
     def print_stats(self):
         self.__print_header()
-        print("{0:40}{1:>10}".format('number of variables: ', self.num_variables))
-        print("{0:40}{1:>10}".format('number of constraints: ', self.num_constraints))
-        print("{0:40}{1:>10}".format("required auxiliary:", "Yes" if self.required_auxiliary else "No"))
+        print("| {0:<12}| {1:40}| {2:>10} |".format('', 'number of variables: ', self.num_variables))
+        print("| {0:<12}| {1:40}| {2:>10} |".format('Overview', 'number of constraints: ', self.num_constraints))
+        print("| {0:<12}| {1:40}| {2:>10} |".format('', "required auxiliary:", "Yes" if self.required_auxiliary else "No"))
+        print('-'*70)
         if self.required_auxiliary:
             self.__print_stats(self.aux_stats, True)
-            print('')
+
         self.__print_stats(self, False)
 
 class SimplexConfig():

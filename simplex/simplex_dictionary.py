@@ -27,9 +27,14 @@ class SimplexDictionary():
 
     def __init__(self, objective_function: LinearExpression, constraints):
         """ """
+        self.seen_basis = {}
+
         self.basis_exprs = [constraint.deepclone() for constraint in constraints]
         self.objective_function = objective_function.deepclone()
         self.x_vars = self.objective_function.rhs_vars()
+
+        self.iter = 1
+        # self.__remember_basis()
 
         self.is_dual = False
         
@@ -39,6 +44,18 @@ class SimplexDictionary():
         self.m = len(constraints)
         self.num_variables = self.n + self.m 
         self.update_state()
+
+    def __remember_basis(self):
+        rhs_vars = [expr.get_lhs() for expr in self.basis_exprs]
+        rhs_vars.sort(key=functools.cmp_to_key(lambda x,y: x.var_comp(y)))
+        rhs_str = [var.varname for var in rhs_vars]
+        rhs_hash = hash(''.join(rhs_str))
+
+        if rhs_hash in self.seen_basis:
+            raise Exception(f"OH NO! We have seen this basis before on iteration: {self.seen_basis[rhs_hash]}")
+
+        self.seen_basis[hash(''.join(rhs_str))] = self.iter
+        self.iter += 1
 
     def debug_print(self, *args, **kwargs):
         if self.DEBUG:
@@ -108,6 +125,9 @@ class SimplexDictionary():
         """
         Transforms the dictionary into a dual dictionary in normal form
         """
+        self.seen_basis.clear()
+        self.iter = 1
+
         dual_lookup = self.__get_dual_lookup_table()
 
         (dual_lhs, dual_rhs) = self.__get_dual_obj_fn(dual_lookup)
@@ -282,6 +302,7 @@ class SimplexDictionary():
             basis_expr.substitute(entering_var.varname, resultant)
 
         # check where we are updating state
+        # self.__remember_basis()
         self.update_state()
         
     def get_state(self):
