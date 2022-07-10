@@ -2,7 +2,7 @@
 This is an implementation of the [Simplex Algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) for solving linear programs. Given a linear program in standard form, the program will determine whether the linear program is feasible, unbounded, or it will provide the optimal value, with the assignment of optimization variables that achieves this optimal value.
 
 ## Known Issues
-This Simplex L.P. solver runs very slow on larger problems. I have tried to look at ways to optimize the code (threading, different data structures, etc), but have not been able to substantially fix it. On certain L.Ps in the practice set, it will run for hours (I have tested over hours and not seen a "cycle", so I do not believe this is do to any poor anti-cycling logic)
+This Simplex L.P. solver runs very slow on larger problems. I have tried to look at ways to optimize the code (threading, different data structures, etc), but have not been able to substantially fix it. On certain L.Ps in the practice set, it will run for hours (I have tested over hours and not seen a "cycle", so I do not believe this is do to any poor anti-cycling logic). This is especially notable if the dictionary is highly degenerate, as there are multiple basis that tie for 
 
 ## Input
 Input is expected to be in the form of a text file with space-delimited values in normal form. For example, the following L.P:
