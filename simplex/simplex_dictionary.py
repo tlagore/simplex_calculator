@@ -22,7 +22,7 @@ class SimplexConfig():
     """
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
     enable_threading = True
-    max_workers = 20
+    max_workers = 4
 
 class SimplexDictionary():
     DEBUG = False
