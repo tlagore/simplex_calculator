@@ -53,15 +53,15 @@ Simplex Solver Problem Stats
 ----------------------------------------------------------------------
 |             | number of pivots:                       |        311 |
 |             | number of degenerate pivots:            |        311 |
-| Auxiliary   | avg pivot selection time:               |  0.323704s |
-|             | avg pivot time:                         |  0.323704s |
-|             | solution time:                          |    206.82s |
+| Auxiliary   | avg pivot selection time:               |  0.274903s |
+|             | avg pivot time:                         |  0.692572s |
+|             | solution time:                          |    176.99s |
 ----------------------------------------------------------------------
 |             | number of pivots:                       |         94 |
 |             | number of degenerate pivots:            |         27 |
-| Main L.P.   | avg pivot selection time:               |  0.011874s |
-|             | avg pivot time:                         |  0.011874s |
-|             | solution time:                          |    271.21s |
+| Main L.P.   | avg pivot selection time:               |  0.011632s |
+|             | avg pivot time:                         |  0.291614s |
+|             | solution time:                          |    241.43s |
 ----------------------------------------------------------------------
 
 ```
