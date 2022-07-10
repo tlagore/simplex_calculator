@@ -58,18 +58,18 @@ Simplex Solver Problem Stats
 ----------------------------------------------------------------------
 ```
 - `debug`
-    - If the `debug` flag is supplied, the program will print all decisions being made and intermediary dictionaries. Flagging debug will also print stats
-
-## Dual Initialization
-The L.P. finds an initially feasible dictionary by first checking to see if the normal form L.P. is already feasible. If not, it performs dual initialization by setting the objective function to 0, then solving the dual L.P.
-
-If the Dual L.P. cannot be solved, then the program will output `infeasible`. If the dual L.P. can be solved, the dual of the dual is taken, and the objective function swapped back into the L.P. The program proceeds to solve the primal L.P. with the initially feasible dictionary provided by the dual problem.
+    - If the `debug` flag is supplied, the program will print all decisions being made and intermediary dictionaries. Flagging debug will also print stats (warning: large LPs do not have pretty debug output)
 
 ## Pivot Method
 The program uses the Largest Coefficient rule for all pivoting decisions
 
+## Dual Initialization
+The L.P. finds an initially feasible dictionary by first checking to see if the prmimal normal form L.P. is already feasible. If not, it performs dual initialization by setting the objective function to 0, then converting the L.P. to it's normal form dual, then solving the dual L.P.
+
+If the Dual L.P. cannot be solved, then the program will output `infeasible`. If the dual L.P. can be solved, the dual of the dual is taken, and the objective function swapped back into the L.P. The program proceeds to attempt to solve the primal L.P. with the initially feasible dictionary provided by the dual problem.
+
 ## Cycle Avoidance
-The program uses the Lexicographical method for breaking ties.  Using the above L.P. as an example, several symbolic "epsilon" values are added to each constraint. Constraint $w_1$ (or $x_{n+1}$) will have $\epsilon_1$, $w_2$, $\epsilon_2$, etc. With the semantics that $0 < \epsilon_1 << \epsilon_2 << ... << \epsilon_m$. Symbolically, these values are on such wildly different scales than one another than there can exist no constant $c$ such that $c\epsilon_{i-1} > c\epsilon_i$.
+The program uses the Lexicographical (Symbolic Perturbation) method for breaking ties on variables leaving the basis. Several symbolic "epsilon" values are added to each constraint. Constraint $w_1$ (or $x_{n+1}$) will have $\epsilon_1$, $w_2$, $\epsilon_2$, etc. With the semantics that $0 < \epsilon_m << \epsilon_{m-1} << ... << \epsilon_1$. Symbolically, these values are on such wildly different scales than one another than there can exist no constant $c$ such that $c\epsilon_i > \epsilon_{i-1}$. Furthermore, each $\epsilon$ is infinitismally small, as to not change the nature of the L.P. being solved.
 
 We can then use these $\epsilon$ to uniquely identify the leaving variable on all ties.
 

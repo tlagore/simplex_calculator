@@ -1,3 +1,4 @@
+import functools
 import math
 import time
 from simplex.linear_expressions import LinearExpression
@@ -53,9 +54,6 @@ class SimplexStats():
 class SimplexConfig():
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
 
-    # 10 degenerative pivots before we consider ourselves cycling
-    cycle_threshold = 10
-
 class SimplexSolver():
     DEBUG = False
 
@@ -64,7 +62,7 @@ class SimplexSolver():
         self.s_dict = SimplexDictionary(objective_function, constraints)
         self.degenerate_count = 0
         self.stats = SimplexStats()
-        self.stats.num_variables = self.s_dict.num_variables
+        self.stats.num_variables = self.s_dict.n
         self.stats.num_constraints = len(constraints)
 
         if config is not None:
@@ -105,12 +103,12 @@ class SimplexSolver():
             # take the dual to get our original problem in terms of the dual-feasible dictionary
             self.s_dict.as_dual_nf()
 
-            orig_vars = list(orig_fn.itervars())
+            orig_vars = list(orig_fn.get_vars())
 
             for var in orig_vars:
                 basis = self.s_dict.get_basis_by_varname(var.varname)
                 if basis is not None:
-                    orig_fn.substitute(var.varname, basis.itervars(include_constant=True))
+                    orig_fn.substitute(var.varname, basis.get_vars(include_constant=True))
 
             self.debug_print("Transformed function:")
             self.debug_print(orig_fn)
@@ -143,7 +141,9 @@ class SimplexSolver():
                 
                 if cur_val == updated_val:
                     self.stats.num_degenerate_pivots += 1
-            
+
+                # print(f'{self.stats.num_pivots}', end='\r')
+
         self.stats.solution_time = time.time() - start_time
         
         if not auxiliary:

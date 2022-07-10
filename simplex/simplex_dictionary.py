@@ -31,10 +31,10 @@ class SimplexDictionary():
 
         self.basis_exprs = [constraint.deepclone() for constraint in constraints]
         self.objective_function = objective_function.deepclone()
-        self.x_vars = self.objective_function.rhs_vars()
+        self.x_vars = [x.deepclone() for x in self.objective_function.get_vars()]
 
         self.iter = 1
-        # self.__remember_basis()
+        self.__remember_basis()
 
         self.is_dual = False
         
@@ -42,8 +42,7 @@ class SimplexDictionary():
         # -1 because there is a constant in the objective function
         self.n = self.objective_function.num_terms()
         self.m = len(constraints)
-        self.num_variables = self.n + self.m 
-        self.update_state()
+        self.update_state(init=True)
 
     def __remember_basis(self):
         rhs_vars = [expr.get_lhs() for expr in self.basis_exprs]
@@ -68,14 +67,16 @@ class SimplexDictionary():
 
         basis_sol = []
 
-        for varname in self.x_vars:
+        self.x_vars.sort(key=functools.cmp_to_key(lambda x,y: x.var_comp(y)))
+
+        for var in self.x_vars:
+            varname = var.varname
             basis_expr = self.get_basis_by_varname(varname)
             if basis_expr is None:
                 basis_sol += [(varname, Fraction(0))]
             else:
                 basis_sol += [(varname, basis_expr.get_constant().coefficient)]
 
-        basis_sol.sort(key=lambda v: v[0])
         return basis_sol
 
 
@@ -95,8 +96,8 @@ class SimplexDictionary():
             Set a new objective function. This objective function must be in terms
             of the existing objective function variables
         """
-        curvars = {var.varname:var for var in self.objective_function.itervars()}
-        for var in fn.itervars():
+        curvars = {var.varname:var for var in self.objective_function.get_vars()}
+        for var in fn.get_vars():
             if var.varname not in curvars:
                 raise Exception(f"Cannot set objective function to '{fn}' as it is not in terms of current objective function: '{self.objective_function}'")
 
@@ -140,7 +141,6 @@ class SimplexDictionary():
 
         self.n = self.objective_function.num_terms()
         self.m = len(self.basis_exprs)
-        self.num_variables = self.n + self.m 
         self.update_state()
 
     def __get_dual_basis(self, dual_lookup):
@@ -151,7 +151,7 @@ class SimplexDictionary():
 
         num_basis = len(self.objective_function.rhs_vars())
 
-        for var in self.objective_function.itervars():
+        for var in self.objective_function.get_vars():
             # Each dual expression has negative constant of coefficient of primal objective function
             dual_expr = [Variable(Variable.CONSTANT, Fraction(-var.coefficient))]
             
@@ -215,14 +215,94 @@ class SimplexDictionary():
         # could add new pivot types here
         if pivot_type == PivotMethod.LARGEST_COEFFICIENT:
             (entering_var, leaving_expr) = self.__get_largest_coefficient_pivot()
+        elif pivot_type == PivotMethod.LARGEST_INCREASE:
+            (entering_var, leaving_expr) = self.__get_largest_increase_pivot()
 
         return (entering_var, leaving_expr)
+
+    def __get_largest_increase_pivot(self):
+        # First we get all the positive coefficient variables in our objective function
+        all_pos = [var for var in self.objective_function.get_vars() if var.coefficient > 0]
+
+        if len(all_pos) == 0:
+            if self.__optimal():
+                self.__state = SimplexState.OPTIMAL
+            else:
+                self.__state = SimplexState.INFEASIBLE
+
+            return (None, None)
+
+
+        candidate_exprs = []
+        leaving_expr = None
+
+        # iterate each variable and get a list of all candidate 
+        # leaving expressions (largest increase *for just that variable*)
+        for var in all_pos:
+            inter_exprs = []
+            smallest_bound = inf
+            multiplier = var.coefficient
+            max_increase = -1
+
+            for basis_expr in self.basis_exprs:
+                candidate = basis_expr.get_var(var.varname)
+
+                # only look at expressions with valid bounds
+                if candidate.coefficient >= 0:
+                    continue
+
+                constant = basis_expr.get_constant()
+
+                if candidate.coefficient == 0:
+                    bound = 0
+                else:
+                    bound = constant.coefficient / -candidate.coefficient
+
+                increase = bound*multiplier
+
+                if bound < smallest_bound:
+                    smallest_bound = bound
+                    inter_exprs = [basis_expr]
+                    max_increase = increase
+                elif bound == smallest_bound and increase == max_increase:
+                    inter_exprs.append(basis_expr)
+                elif bound == smallest_bound and increase > max_increase:
+                    inter_exprs = [basis_expr]
+                    max_increase = increase
+
+            if len(inter_exprs) > 0:
+                leaving_expr = self.__break_ties(inter_exprs)
+                candidate_exprs.append((var, leaving_expr, max_increase))
+
+        if len(candidate_exprs) == 0:
+            # we had positive variables in our non-basic, but nothing to pivot out
+            self.__state = SimplexState.UNBOUNDED
+            return (None, None)
+        else:
+            # filter leaving expressions to only the max possible increases
+            filtered_exprs = self.__filter_largest_increase(candidate_exprs)
+            # break ties based on lexicographical anti-cycling
+            leaving_expr = self.__break_ties_lgst(filtered_exprs)
+            return (leaving_expr[0], leaving_expr[1])
+
+        
+    def __filter_largest_increase(self, candidate_basis):
+        largest_increase = -1
+        largest = []
+        for (entering_var, basis, increase) in candidate_basis:
+            if increase > largest_increase:
+                largest = [(entering_var, basis)]
+                largest_increase = increase
+            elif increase == largest_increase:
+                largest.append((entering_var, basis))
+
+        return largest
 
     def __get_largest_coefficient_pivot(self):
         max_val = -inf
         entering_var = None
 
-        for var in self.objective_function.itervars():
+        for var in self.objective_function.get_vars():
             if var.coefficient > 0 and var.coefficient > max_val:
                 max_val = var.coefficient
                 entering_var = var
@@ -274,12 +354,33 @@ class SimplexDictionary():
 
         return leaving_expr
 
+    def __break_ties_lgst(self, expressions):
+        """
+        Break ties using the lexicographical method for largest increase
+
+        Since largest increase requires keeping track of which is the entering variable and which is the exiting expression,
+        expressions here is a list of tuples of the form:
+
+        [(varname, candidate_leaving_expression)] 
+        """
+
+        if len(expressions) == 0:
+            return None
+
+        self.debug_print('Breaking ties:\n{0}'.format("\n".join([str(expression[1]) for expression in expressions])))
+        expressions.sort(key=functools.cmp_to_key(lambda x,y: x[1].compare_eps(y[1])))
+        self.debug_print(f'Chose: {expressions[0]}')
+        return expressions[0]
+
     def __break_ties(self, expressions):
         """
         Break ties using the lexicographical method
 
         We sort the expressions by their epsilon values and take the first one
         """
+        if len(expressions) == 0:
+            return None
+
         self.debug_print('Breaking ties:\n{0}'.format("\n".join([str(expression) for expression in expressions])))
         expressions.sort(key=functools.cmp_to_key(lambda x,y: x.compare_eps(y)))
         self.debug_print(f'Chose: {expressions[0]}')
@@ -302,13 +403,13 @@ class SimplexDictionary():
             basis_expr.substitute(entering_var.varname, resultant)
 
         # check where we are updating state
-        # self.__remember_basis()
+        self.__remember_basis()
         self.update_state()
         
     def get_state(self):
         return self.__state
 
-    def update_state(self):
+    def update_state(self, init=False):
         """
         """
 
@@ -318,12 +419,12 @@ class SimplexDictionary():
             self.__state = SimplexState.OPTIMAL
         elif self.__state != SimplexState.OPTIMAL and not self.__is_feasible():
             self.__state = SimplexState.INFEASIBLE
-        else:
+        elif init:
             # Need to check if we're unbounded
             # NOTE: This operation is expensive, but we only find all variables one time.
             # If we needed to do this frequently we should make a lookup from variable to 
             # the expressions it appears in.
-            for var in self.objective_function.itervars():
+            for var in self.objective_function.get_vars():
                 if var.coefficient > 0:
                     all_positive = True
 
@@ -341,7 +442,7 @@ class SimplexDictionary():
     def __optimal(self):
         optimal = True
         
-        for var in self.objective_function.itervars():
+        for var in self.objective_function.get_vars():
             optimal = optimal and (var.coefficient <= 0 or var.varname == Variable.CONSTANT)
 
         for constraint in self.basis_exprs:
@@ -389,7 +490,7 @@ class SimplexDictionary():
         if first.num_terms() != second.num_terms():
             return False
 
-        for var in first.itervars(include_constant=True):
+        for var in first.get_vars(include_constant=True):
             comp_var = second.get_var(var.varname)
 
             if comp_var is not None:

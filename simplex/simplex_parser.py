@@ -2,7 +2,7 @@ from fractions import Fraction
 from simplex.linear_expressions import LinearExpression, Variable
 from simplex.simplex_solver import SimplexSolver
 
-def parse(in_file):
+def parse(in_file, simplex_config):
     """
     """
     line = in_file.readline().strip()
@@ -18,7 +18,7 @@ def parse(in_file):
     for i, constraint in enumerate(constraints):
         constraint.set_epsilon(i+1, basis_count)
 
-    return SimplexSolver(obj_fn, constraints)
+    return SimplexSolver(obj_fn, constraints, simplex_config)
 
 def parse_constraint(line, constraint_idx) -> LinearExpression:
     """
@@ -42,9 +42,15 @@ def parse_obj_function(line):
     return (LinearExpression(lhs, rhs), len(rhs))
 
 def parse_rhs(parts, constant, obj_fn=False):
+    # let Fraction do the heavy lifting of the convertion from string to fraction, then convert to Fraction
     rhs = [Variable(Variable.CONSTANT, Fraction(constant))]
     for idx, part in enumerate(parts):
         varname = f'x{idx+1}'
+
+        # print (Variable(varname, Fraction(part)), end='')
         coef = Fraction(part) if obj_fn else -Fraction(part)
         rhs.append(Variable(varname, coef))
+    
+    # print(f' <= {constant}')
+
     return rhs

@@ -13,7 +13,7 @@ class Variable():
         self.varname = varname
 
     def deepclone(self):
-        return Variable(self.varname, Fraction(self.coefficient))
+        return Variable(self.varname, Fraction(self.coefficient.numerator, self.coefficient.denominator))
 
     def __repr__(self):
         msg = ''
@@ -253,7 +253,7 @@ class LinearExpression():
 
     def num_terms(self):
         """ -1 for constant term """
-        return len(self.__rhs) - 1
+        return self.__num_terms
 
     def compare_eps(self, other: 'LinearExpression'):
         """
@@ -264,7 +264,7 @@ class LinearExpression():
         """
         
         # Note a larger epsilon index means the epsilon is smaller
-        for i in range(self.num_epsilon, 0, -1):
+        for i in range(1, self.num_epsilon+1):
             var = f'{Variable.EPSILON}{i}'
             mine = self.get_var(var)
             theirs = other.get_var(var)
@@ -296,7 +296,7 @@ class LinearExpression():
 
         self.num_epsilon = num_epsilon
 
-    def set_expression(self, lhs: Variable, rhs, epsilon=None):
+    def set_expression(self, lhs: Variable, rhs: 'LinearExpression', epsilon=None):
         """
         """
         self.__lhs = lhs
@@ -304,6 +304,8 @@ class LinearExpression():
         # create a dictionary for quick lookup of variables
         # deepclone in case caller is reusing variables
         self.__rhs = {val.varname:val.deepclone() for val in rhs}
+
+        self.__num_terms = len([x for x in rhs if x.varname.startswith('x') or x.varname.startswith('y')])
 
         if epsilon:
             self.set_epsilon(epsilon[0], epsilon[1])
@@ -344,9 +346,6 @@ class LinearExpression():
         return self.__lhs.varname
 
     def substitute(self, varname: str, expr):
-        if varname not in self.__rhs:
-            raise Exception(f"substitute():: Expression does not have '{varname}' as a variable")
-
         sub_var = self.__rhs.pop(varname)
         sub_expr = [v*sub_var for v in expr]
         
@@ -370,13 +369,16 @@ class LinearExpression():
         # same as dividing by itself
         self.__lhs.coefficient = Fraction(1)
 
-    def itervars(self, include_constant=False):
+    def get_vars(self, include_constant=False):
+        vars = []
         for var in self.__rhs.values():
             if var.varname.startswith(Variable.EPSILON):
                 continue
 
             if include_constant or var.varname != Variable.CONSTANT:
-                yield var.deepclone()
+                vars.append(var)
+
+        return vars
 
     def deepclone(self):
         lhs = self.__lhs.deepclone()
@@ -409,7 +411,7 @@ class LinearExpression():
     def __repr__(self):
         rhs_str = ""
 
-        rhs_vars = list(self.__rhs.values())
+        rhs_vars = [val for val in self.__rhs.values() if not val.varname.startswith(Variable.EPSILON)]
         rhs_vars.sort(key=functools.cmp_to_key(lambda x,y: x.var_comp(y)))
 
         # rhs_vars.sort(key=lambda v: v.varname)

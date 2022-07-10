@@ -3,6 +3,7 @@
 ## Basically just implements the fractions.Fraction class
 ## that python already has built in (with less features)
 
+from fractions import Fraction
 from decimal import DivisionByZero
 import math
 import operator
@@ -27,24 +28,25 @@ class Rational():
                 "cannot be less than or equal to 0, and cannot be None. " +
                 "Use '1' for whole numbers. Make the numerator negative for negative rationals.")
 
-        if denominator == None:
-            denominator = 1
+        if isinstance(numerator, Rational):
+            self.numerator = numerator.numerator
+            self.denominator = numerator.denominator
+        else:
+            if denominator == None:
+                denominator = 1
 
-        if numerator is None or not isinstance(numerator, int):
-            raise Exception("Numerator must be an integer")
+            if numerator is None or not isinstance(numerator, int):
+                raise Exception("Numerator must be an integer")
 
-        self.numerator = numerator
-        self.denominator = denominator
+            self.numerator = numerator
+            self.denominator = denominator
 
     def __subtract(self, other: Type['Rational'], in_place) -> 'Rational':
-        print(f"{self} - {other} -> ", end='')
         subtractor = Rational(-other.numerator, other.denominator)
 
         return self.__add(subtractor, in_place)
 
     def __add(self, other: Type['Rational'], in_place):
-        print(f"{self} + {other} -> ", end='')
-
         if self.denominator == other.denominator:
             # covers whole numbers (both None) and shared denominators
             if in_place:
@@ -62,8 +64,6 @@ class Rational():
 
             summand.simplify()
 
-            print(f"{summand}")
-            
             if in_place:
                 self.numerator = summand.numerator
                 self.denominator = summand.denominator
@@ -78,8 +78,6 @@ class Rational():
         if divisor.numerator == 0:
             raise DivisionByZero(f"Cannot perform division as divisor has numerator of {divisor.numerator}")
 
-        print(f"{self} / {divisor} -> ", end = '')
-
         # flip the divisor, maintain the sign of the numerator
         new = Rational(int(math.copysign(divisor.denominator, divisor.numerator)), abs(divisor.numerator))
         
@@ -89,7 +87,6 @@ class Rational():
         """
         Multiply two rationals
         """
-        print(f"{self} * {other} -> ", end='')
         if in_place:
             new = self
         else:
@@ -99,25 +96,27 @@ class Rational():
         new.denominator = new.denominator * other.denominator
         new.simplify()
 
-        print(f"{new}")
         return new
 
     def simplify(self, in_place=True) -> 'Rational':
         """
+        For performance reasons, we only simplify if the numbers get very large
+
         Simplifies this rational number and returns it. If in_place is set to true, it will simplify this object
         """
-        my_gcd = math.gcd(self.numerator, self.denominator)
-        
-        new = Rational(self.numerator, self.denominator)
-        if my_gcd != 1:
-            new.numerator //= my_gcd
-            new.denominator //= my_gcd
+        if self.denominator > 10000000 or self.numerator > 10000000:
+            my_gcd = math.gcd(self.numerator, self.denominator)
+            
+            new = Rational(self.numerator, self.denominator)
+            if my_gcd != 1:
+                new.numerator //= my_gcd
+                new.denominator //= my_gcd
 
-        if in_place:
-            self.numerator = new.numerator
-            self.denominator = new.denominator
+            if in_place:
+                self.numerator = new.numerator
+                self.denominator = new.denominator
 
-        return new
+            return new
 
     def __change_denominator(self, new_denominator: int):
         """ 
@@ -168,13 +167,17 @@ class Rational():
         else:
             return (a*b) // math.gcd(a,b)
 
+    def __float__(self):
+        fr = Fraction(self.numerator, self.denominator)
+        return float(fr)
+
     def __deepclone(self) -> 'Rational':
         return Rational(self.numerator, self.denominator)
 
     def __compare(self, other: Type['Rational'], comparator: operator):
         """ compare 2 rational numbers with some comparator"""
-        (a,b) = Rational.__unify(self, other)
-        return comparator(a.numerator,b.numerator)
+        # (a,b) = Rational.__unify(self, other)
+        return comparator(float(self), float(other))
 
     ## OVERRIDES:
     def __repr__(self):
@@ -205,15 +208,21 @@ class Rational():
     def __le__(self, other: Type['Rational']) -> bool:
         return self.__compare(other, operator.le)
 
+
+    def __abs__(self):
+        return Rational(abs(self.numerator), self.denominator)
+
     # >
     def __eq__(self, other: Type['Rational']) -> bool:
         """ 
         Override of ==. Checks that they both represent the *same rational number*, not that their numerator and denominator are the saem
         """
-        a = self.simplify(in_place=False)
-        b = other.simplify(in_place=False)
+        # a = self.simplify(in_place=False)
 
-        return a.numerator == b.numerator and a.denominator == b.denominator
+        # other = Rational(other)
+        # b = other.simplify(in_place=False)
+
+        return float(self) == float(other) # a.numerator == b.numerator and a.denominator == b.denominator
 
     # required for ==
     def __hash__(self):
