@@ -352,6 +352,7 @@ class LinearExpression():
 
     def substitute(self, varname: str, expr):
         sub_var = self.__rhs.pop(varname)
+        
         for var in expr:
             if var.varname in self.__rhs:
                 self.__rhs[var.varname].coefficient += (var.coefficient*sub_var.coefficient)

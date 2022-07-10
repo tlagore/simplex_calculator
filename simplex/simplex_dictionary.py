@@ -32,7 +32,7 @@ class SimplexDictionary():
         self.x_vars = [x.deepclone() for x in self.objective_function.get_vars()]
 
         self.iter = 1
-        self.__remember_basis()
+        # self.__remember_basis()
 
         self.is_dual = False
         
@@ -234,8 +234,6 @@ class SimplexDictionary():
         candidate_exprs = []
         leaving_expr = None
 
-        # iterate each variable and get a list of all candidate 
-        # leaving expressions (largest increase *for just that variable*)
         for var in all_pos:
             inter_exprs = []
             smallest_bound = inf
@@ -394,14 +392,14 @@ class SimplexDictionary():
         resultant = leaving_expr.in_terms_of(entering_var.varname)
 
         self.objective_function.substitute(entering_var.varname, resultant)
+
         for basis_expr in self.basis_exprs:
             if basis_expr == leaving_expr:
                 continue
             
             basis_expr.substitute(entering_var.varname, resultant)
 
-        # check where we are updating state
-        self.__remember_basis()
+        # self.__remember_basis()
         self.update_state()
         
     def get_state(self):

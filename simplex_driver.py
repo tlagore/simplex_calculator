@@ -1,5 +1,4 @@
 import sys
-import time
 import simplex.simplex_parser as sp
 from simplex.simplex_dictionary import SimplexConfig, PivotMethod
 
@@ -14,8 +13,7 @@ def main():
             stats = True
 
     simplex_config = SimplexConfig()
-    simplex_config.pivot_method = PivotMethod.LARGEST_INCREASE
-
+    simplex_config.pivot_method = PivotMethod.LARGEST_COEFFICIENT
     solver = sp.parse(sys.stdin, simplex_config)
 
     if debug:
