@@ -1,4 +1,3 @@
-import functools
 import math
 import time
 from simplex.linear_expressions import LinearExpression
