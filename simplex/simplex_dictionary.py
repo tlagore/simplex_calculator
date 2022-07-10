@@ -7,8 +7,6 @@ from fractions import Fraction
 class PivotMethod(Enum):
     LARGEST_COEFFICIENT = 1
     LARGEST_INCREASE = 2
-    LEXICOGRAPHICAL = 3
-    BLANDS = 4
 
 class SimplexState(Enum):
     FEASIBLE = 1

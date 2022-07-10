@@ -61,7 +61,7 @@ Simplex Solver Problem Stats
     - If the `debug` flag is supplied, the program will print all decisions being made and intermediary dictionaries. Flagging debug will also print stats (warning: large LPs do not have pretty debug output)
 
 ## Pivot Method
-The program uses the Largest Coefficient rule for all pivoting decisions
+The program can be configured to use the Largest Coefficient, or the Largest Increase pivot rule by supplying SimplexConfig with pivot_method set to `PivotMethod.LARGEST_COEFFICIENT` or `PivotMethod.LARGEST_INCREASE` respectively. Default is `LARGEST_INCREASE`.
 
 ## Dual Initialization
 The L.P. finds an initially feasible dictionary by first checking to see if the prmimal normal form L.P. is already feasible. If not, it performs dual initialization by setting the objective function to 0, then converting the L.P. to it's normal form dual, then solving the dual L.P.

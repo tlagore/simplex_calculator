@@ -68,6 +68,11 @@ class Variable():
         else:
             return 0
 
+
+    """
+        NOTE: None of these operators check to ensure these are the "same variable", they just assume they are
+        and operate on the coefficients of one another.
+    """
     # >
     def __gt__(self, other: 'Variable') -> bool:
         return self.coefficient > other.coefficient
@@ -89,7 +94,7 @@ class Variable():
         """ 
         Override of ==
         """
-        return self.varname == other.varname and self.coefficient == other.coefficient
+        return self.coefficient == other.coefficient
 
     # required for ==
     def __hash__(self):
@@ -325,7 +330,7 @@ class LinearExpression():
         self.__lhs = repl_val
         self.__normalize()
 
-        return list(self.__rhs.values())
+        return self.__rhs.values()
 
     def get_constant(self):
         if Variable.CONSTANT not in self.__rhs:
@@ -347,13 +352,12 @@ class LinearExpression():
 
     def substitute(self, varname: str, expr):
         sub_var = self.__rhs.pop(varname)
-        sub_expr = [v*sub_var for v in expr]
-        
-        for var in sub_expr:
+        for var in expr:
             if var.varname in self.__rhs:
-                self.__rhs[var.varname] += var
+                self.__rhs[var.varname].coefficient += (var.coefficient*sub_var.coefficient)
             else:
-                self.__rhs[var.varname] = var
+                self.__rhs[var.varname] = Variable(var.varname, var.coefficient*sub_var.coefficient)
+
 
     def __normalize(self):
         """
