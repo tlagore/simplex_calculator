@@ -66,7 +66,7 @@ class SimplexSolver():
 
     def __init__(self, objective_function: LinearExpression, constraints, config: SimplexConfig=None):
         """ """
-        self.s_dict = SimplexDictionary(objective_function, constraints, config)
+        self.s_dict = SimplexDictionary(objective_function, constraints)
         self.degenerate_count = 0
         self.stats = SimplexStats()
         self.stats.num_variables = self.s_dict.n

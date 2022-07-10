@@ -1,10 +1,8 @@
 import functools
 from math import inf
-from re import T
 from simplex.linear_expressions import LinearExpression, Variable
 from enum import Enum
 from fractions import Fraction
-from concurrent.futures import ThreadPoolExecutor
 
 class PivotMethod(Enum):
     LARGEST_COEFFICIENT = 1
@@ -21,13 +19,11 @@ class SimplexConfig():
     Currently unused, but might be used for to configure different methods of solving down the line
     """
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
-    enable_threading = True
-    max_workers = 4
 
 class SimplexDictionary():
     DEBUG = False
 
-    def __init__(self, objective_function: LinearExpression, constraints, config = None):
+    def __init__(self, objective_function: LinearExpression, constraints):
         """ """
         self.seen_basis = {}
 
@@ -37,11 +33,6 @@ class SimplexDictionary():
 
         self.iter = 1
         # self.__remember_basis()
-
-        if config is None:
-            self.config = SimplexConfig()
-        else:
-            self.config = config
 
         self.is_dual = False
         
@@ -392,43 +383,12 @@ class SimplexDictionary():
         return expressions[0]
 
     def pivot(self, entering_var, leaving_expr):
-        if self.config.enable_threading:
-            self.__pivot_threaded(entering_var, leaving_expr)
-        else:
-            self.__pivot(entering_var, leaving_expr)
-
-    def __pivot_threaded(self, entering_var, leaving_expr):
-        def basis_sub(args):
-            basis_expr = args['basis_expr']
-            var = args['var']
-            resultant = args['resultant']
-            basis_expr.substitute(var.varname, resultant)
-
-        resultant = leaving_expr.in_terms_of(entering_var.varname)
-
-        self.objective_function.substitute(entering_var.varname, resultant)
-        args = [{'basis_expr': basis_expr, 'var':entering_var, 'resultant': resultant} for basis_expr in self.basis_exprs if basis_expr != leaving_expr]
-
-        with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
-            executor.map(basis_sub, args)
-        
-        # for basis_expr in self.basis_exprs:
-        #     if basis_expr == leaving_expr:
-        #         continue
-            
-        #     basis_expr.substitute(entering_var.varname, resultant)
-
-        # self.__remember_basis()
-        self.update_state()
-
-    def __pivot(self, entering_var, leaving_expr):
         """
         Pivots a specific entering variable for a basis variable.
 
         The basis variable is the entire basis expression, which is used to
         rewrite the basis expression in terms of the entering variable.
         """
-
         resultant = leaving_expr.in_terms_of(entering_var.varname)
 
         self.objective_function.substitute(entering_var.varname, resultant)
