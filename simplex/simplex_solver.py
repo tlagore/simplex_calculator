@@ -42,8 +42,8 @@ class SimplexStats():
         p_type = 'Auxiliary' if aux else 'Main L.P.'
         print("| {0:<12}| {1:40}| {2:10} |".format('', f"number of pivots:", stats.num_pivots))
         print("| {0:<12}| {1:40}| {2:10} |".format('', f"number of degenerate pivots:", stats.num_degenerate_pivots))
-        print("| {0:<12}| {1:40}| {2:9.6f}s |".format(p_type, f"avg pivot selection time:", stats.pivot_selection_time/self.num_pivots))
-        print("| {0:<12}| {1:40}| {2:9.6f}s |".format('', f"avg pivot time:", stats.pivot_time/self.num_pivots))
+        print("| {0:<12}| {1:40}| {2:9.6f}s |".format(p_type, f"avg pivot selection time:", stats.pivot_selection_time/stats.num_pivots))
+        print("| {0:<12}| {1:40}| {2:9.6f}s |".format('', f"avg pivot time:", stats.pivot_time/stats.num_pivots))
         print("| {0:<12}| {1:40}| {2:9.2f}s |".format('', f"solution time:", stats.solution_time))
         print('-'*70)
 
