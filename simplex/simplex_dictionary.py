@@ -3,6 +3,7 @@ from math import inf
 from simplex.linear_expressions import LinearExpression, Variable
 from enum import Enum
 from fractions import Fraction
+from concurrent.futures import ThreadPoolExecutor
 
 class PivotMethod(Enum):
     LARGEST_COEFFICIENT = 1
@@ -389,15 +390,26 @@ class SimplexDictionary():
         The basis variable is the entire basis expression, which is used to
         rewrite the basis expression in terms of the entering variable.
         """
+
+        def basis_sub(args):
+            basis_expr = args['basis_expr']
+            var = args['var']
+            resultant = args['resultant']
+            basis_expr.substitute(var.varname, resultant)
+
         resultant = leaving_expr.in_terms_of(entering_var.varname)
 
         self.objective_function.substitute(entering_var.varname, resultant)
+        args = [{'basis_expr': basis_expr, 'var':entering_var, 'resultant': resultant} for basis_expr in self.basis_exprs if basis_expr != leaving_expr]
 
-        for basis_expr in self.basis_exprs:
-            if basis_expr == leaving_expr:
-                continue
+        with ThreadPoolExecutor(max_workers=200) as executor:
+            executor.map(basis_sub, args)
+        
+        # for basis_expr in self.basis_exprs:
+        #     if basis_expr == leaving_expr:
+        #         continue
             
-            basis_expr.substitute(entering_var.varname, resultant)
+        #     basis_expr.substitute(entering_var.varname, resultant)
 
         # self.__remember_basis()
         self.update_state()
