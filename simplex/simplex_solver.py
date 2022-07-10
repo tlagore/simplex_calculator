@@ -10,6 +10,8 @@ class SimplexStats():
     num_pivots = 0
     num_degenerate_pivots = 0
     solution_time = 0
+    pivot_selection_time = 0
+    pivot_time = 0
 
     # if we solve an auxilery problem
     required_auxiliary = False
@@ -21,10 +23,14 @@ class SimplexStats():
         self.aux_stats.num_pivots = self.num_pivots
         self.aux_stats.num_degenerate_pivots = self.num_degenerate_pivots
         self.aux_stats.solution_time = self.solution_time
+        self.aux_stats.pivot_selection_time = self.pivot_selection_time
+        self.aux_stats.pivot_time = self.pivot_time
 
         self.num_pivots = 0
         self.num_degenerate_pivots = 0
         self.solution_time = 0
+        self.pivot_selection_time = 0
+        self.pivot_time = 0
 
     def __print_header(self):
         print("\nSimplex Solver Problem Stats")
@@ -35,7 +41,9 @@ class SimplexStats():
     def __print_stats(self, stats: 'SimplexStats', aux: bool):
         p_type = 'Auxiliary' if aux else 'Main L.P.'
         print("| {0:<12}| {1:40}| {2:10} |".format('', f"number of pivots:", stats.num_pivots))
-        print("| {0:<12}| {1:40}| {2:10} |".format(p_type, f"number of degenerate pivots:", stats.num_degenerate_pivots))
+        print("| {0:<12}| {1:40}| {2:10} |".format('', f"number of degenerate pivots:", stats.num_degenerate_pivots))
+        print("| {0:<12}| {1:40}| {2:9.6f}s |".format(p_type, f"avg pivot selection time:", stats.pivot_selection_time/self.num_pivots))
+        print("| {0:<12}| {1:40}| {2:9.6f}s |".format('', f"avg pivot time:", stats.pivot_time/self.num_pivots))
         print("| {0:<12}| {1:40}| {2:9.2f}s |".format('', f"solution time:", stats.solution_time))
         print('-'*70)
 
@@ -129,10 +137,16 @@ class SimplexSolver():
 
         while self.s_dict.get_state() == SimplexState.FEASIBLE:
             cur_val = self.s_dict.get_objective_value()
-            (entering_var, leaving_expr) = self.s_dict.get_pivot(self.pivot_method)
             
+            st = time.perf_counter()
+            (entering_var, leaving_expr) = self.s_dict.get_pivot(self.pivot_method)
+            self.stats.pivot_selection_time += (time.perf_counter() - st)
+
             if self.s_dict.get_state() == SimplexState.FEASIBLE:
+                st = time.perf_counter()
                 self.s_dict.pivot(entering_var, leaving_expr)
+                self.stats.pivot_time += (time.perf_counter() - st)
+
                 self.debug_print(repr(self))
                 self.debug_print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}") 
                 updated_val = self.s_dict.get_objective_value()
@@ -141,7 +155,7 @@ class SimplexSolver():
                 if cur_val == updated_val:
                     self.stats.num_degenerate_pivots += 1
 
-                print(f'{self.stats.num_pivots}', end='\r')
+                # print(f'{self.stats.num_pivots}', end='\r')
 
         self.stats.solution_time = time.time() - start_time
         
