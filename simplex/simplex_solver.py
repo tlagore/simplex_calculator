@@ -132,7 +132,7 @@ class SimplexSolver():
             if not self.make_feasible():
                 self.print_result(SimplexState.INFEASIBLE)
                 return
-                
+
         start_time = time.time()
         while self.s_dict.get_state() == SimplexState.FEASIBLE:
             cur_val = self.s_dict.get_objective_value()
@@ -154,7 +154,7 @@ class SimplexSolver():
                 if cur_val == updated_val:
                     self.stats.num_degenerate_pivots += 1
 
-                # print(f'{self.stats.num_pivots}', end='\r')
+                print(f'{self.stats.num_pivots}', end='\r')
 
         self.stats.solution_time = time.time() - start_time
         
