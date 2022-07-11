@@ -1,19 +1,6 @@
 # Dictionary Based Simplex Linear Program Solver
 This is an implementation of the [Simplex Algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) for solving linear programs. Given a linear program in standard form, the program will determine whether the linear program is feasible, unbounded, or it will provide the optimal value, with the assignment of optimization variables that achieves this optimal value.
 
-## Known Issues
-This Simplex L.P. solver runs very slow on larger problems. I have tried to look at ways to optimize the code (threading, different data structures, etc), but have not been able to substantially fix it. On certain L.Ps in the practice set, it will run for hours (I have tested over hours and not seen a "cycle", so I do not believe this is do to any poor anti-cycling logic). This is especially notable if the dictionary is highly degenerate, as there are multiple basis variables that tie to become leaving and many comparisons that need to be done on each pivot.
-
-The following LPs are too large to finish in reasonable time: 
-```
-77K  netlib_klein2.txt
-46K  netlib_sc105.txt
-90K  netlib_scagr7.txt
-140K netlib_share1b.txt
-62K  netlib_stocfor1.txt
-
-```
-
 ## Input
 Input is expected to be in the form of a text file with space-delimited values in normal form. For example, the following L.P:
 ```
@@ -78,31 +65,32 @@ Simplex Solver Problem Stats
 - `debug`
     - If the `debug` flag is supplied, the program will print all decisions being made and intermediary dictionaries. Flagging debug will also print stats (warning: large LPs do not have pretty debug output)
 
-## Pivot Method
-The program can be configured to use the Largest Coefficient, or the Largest Increase pivot rule by supplying SimplexConfig with pivot_method set to `PivotMethod.LARGEST_COEFFICIENT` or `PivotMethod.LARGEST_INCREASE` respectively. Default is `LARGEST_COEFFICIENT`.
+# Extra Features
+## 1. Pivot Method: Largest Increase with Optional Largest Cofficient
+The program can be configured to use the Largest Coefficient, or the Largest Increase pivot rule by supplying SimplexConfig with pivot_method set to `PivotMethod.LARGEST_COEFFICIENT` or `PivotMethod.LARGEST_INCREASE` respectively. Default is `LARGEST_INCREASE`.
 
-**Note:** `LARGEST_INCREASE` has slow pivot selection on larger L.Ps
-
-To enable `LARGEST_INCREASE` modify this line in `simplex_driver.py`:
+To enable `LARGEST_COEFFICIENT` modify this line in `simplex_driver.py`:
 
 ```python
 [15]    simplex_config = SimplexConfig()
-[16]    simplex_config.pivot_method = PivotMethod.LARGEST_COEFFICIENT # this line
+[16]    simplex_config.pivot_method = PivotMethod.LARGES_INCREASE # this line
 ```
 
 to
 
 ```python
 [15]    simplex_config = SimplexConfig()
-[16]    simplex_config.pivot_method = PivotMethod.LARGEST_INCREASE # to this
+[16]    simplex_config.pivot_method = PivotMethod.LARGEST_COEFFICIENT # to this
 ```
 
-## Dual Initialization
-The L.P. finds an initially feasible dictionary by first checking to see if the prmimal normal form L.P. is already feasible. If not, it performs dual initialization by setting the objective function to 0, then converting the L.P. to it's normal form dual, then solving the dual L.P.
+## 2. Dual Initialization
+The L.P. finds an initially feasible dictionary by first checking to see if the prmimal normal form L.P. is already feasible. If not, it performs dual initialization by setting the objective function to -1 **(-1 for all variables in the objective function)**, then converting the L.P. to it's normal form dual, then solving the dual L.P.
+
+Originally it was tried to make the objective function to all 0's, but this caused large degeneracies in the Dual LP that made it take an incredibly long time to solve.
 
 If the Dual L.P. cannot be solved, then the program will output `infeasible`. If the dual L.P. can be solved, the dual of the dual is taken, and the objective function swapped back into the L.P. The program proceeds to attempt to solve the primal L.P. with the initially feasible dictionary provided by the dual problem.
 
-## Cycle Avoidance
+## 3. Cycle Avoidance
 The program uses the Lexicographical (Symbolic Perturbation) method for breaking ties on variables leaving the basis. Several symbolic "epsilon" values are added to each constraint. Constraint $w_1$ (or $x_{n+1}$) will have $\epsilon_1$, $w_2$, $\epsilon_2$, etc. With the semantics that $0 < \epsilon_m << \epsilon_{m-1} << ... << \epsilon_1$. Symbolically, these values are on such wildly different scales than one another than there can exist no constant $c$ such that $c\epsilon_i > \epsilon_{i-1}$. Furthermore, each $\epsilon$ is infinitismally small, as to not change the nature of the L.P. being solved.
 
 We can then use these $\epsilon$ to uniquely identify the leaving variable on all ties.
@@ -141,4 +129,38 @@ to
 [15]    simplex_config = SimplexConfig()
 [16]    simplex_config.pivot_method = PivotMethod.LARGEST_COEFFICIENT
 [17]    simplex_config.test_cycle_avoidance = True # to this
+```
+
+
+# Appendix
+## Long Running Files
+netlib_klein2.txt takes 
+
+netlib_share1b.txt takes about 665 seconds (~11 minutes) on the school computers
+```
+ python3 simplex_driver.py stats < data/test_LPs_volume1/toughies/netlib_share1b.txt
+optimal
+76589.32
+333.9 0 77.86822 0 0 3.794088 72.8 0 10.53246 0 0 0 799.4498 0 108.5993 351 0 54.33938 136.3972 10491.44 54369.9 15190.23 1277857 241.5632 0 1158.818 215 8159.058 604 2408.847 162.6116 124 44 428 163 891.1206 82.8 0 0 24.77519 54.46011 0 148.4 0 0 141.3706 0 673.6659 0 59.25929 589.1693 0 2115.6 177710.4 12421.08 3633.588 130.7018 0 123.5357 104 934.7553 0 2020.024 79.35278 121 0 110.4643 890.626 202.0024 575 209.2659 113 0 279 248 9953.891 2848.077 47187.21 0 0 0 0 0 198.7407 108 11197.64 2873.431 62302.87 562.0498 8171.439 6595.421 0 417.8238 49.60279 0 69.11528 0 0 0 422 0 2569.511 4.627695 224.5924 23.01764 0 0 2.388709 10.27614 0 0 0 47.1315 101.9824 0 0 0 6316.159 0 0 0 0 0 0 0 0 0 0 0 4175.28 0 0 0 0 0 0 7122.173 0 0 77.80248 917.0735 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1413.972 0 0 3.564697 4.954708 2.07467 19.66551 5.571858 0 0 0 0 0 87.20019 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2028.4 0 93.86653 41.57828 0 0 1002.185 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 953.405 0 0 64.43365 0 0 0
+
+Simplex Solver Problem Stats
+----------------------------------------------------------------------
+| Category    | Stat                          | Value                |
+----------------------------------------------------------------------
+|             | number of variables:          |                  225 |
+| Overview    | number of constraints:        |                  206 |
+|             | required auxiliary:           |                  Yes |
+----------------------------------------------------------------------
+|             | number of pivots:             |                  410 |
+|             | number of degenerate pivots:  |                  234 |
+| Auxiliary   | avg pivot selection time:     |            0.182862s |
+|             | avg pivot time:               |            1.129935s |
+|             | solution time:                |              538.33s |
+----------------------------------------------------------------------
+|             | number of pivots:             |                   78 |
+|             | number of degenerate pivots:  |                   15 |
+| Main L.P.   | avg pivot selection time:     |            0.051786s |
+|             | avg pivot time:               |            1.576650s |
+|             | solution time:                |              127.03s |
+----------------------------------------------------------------------
 ```
