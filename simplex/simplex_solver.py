@@ -128,13 +128,12 @@ class SimplexSolver():
         return False
 
     def solve(self, auxiliary = False):
-        start_time = time.time()
-
         if not self.s_dict.get_state() == SimplexState.FEASIBLE and not auxiliary:
             if not self.make_feasible():
                 self.print_result(SimplexState.INFEASIBLE)
                 return
-
+                
+        start_time = time.time()
         while self.s_dict.get_state() == SimplexState.FEASIBLE:
             cur_val = self.s_dict.get_objective_value()
             
