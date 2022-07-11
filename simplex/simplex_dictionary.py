@@ -4,7 +4,9 @@ from simplex.linear_expressions import LinearExpression, Variable
 from enum import Enum
 from fractions import Fraction
 from concurrent.futures import ThreadPoolExecutor
+import math
 import multiprocessing
+# import threading
 
 class PivotMethod(Enum):
     LARGEST_COEFFICIENT = 1
@@ -33,6 +35,9 @@ class SimplexDictionary():
         self.basis_exprs = [constraint.deepclone() for constraint in constraints]
         self.objective_function = objective_function.deepclone()
         self.x_vars = [x.deepclone() for x in self.objective_function.get_vars()]
+        self.worker_count = int(math.ceil(multiprocessing.cpu_count()/2.0))
+
+        # self.basis_comp_lock = threading.Semaphore(multiprocessing.cpu_count())
 
         self.iter = 1
 
@@ -411,12 +416,12 @@ class SimplexDictionary():
         resultant = leaving_expr.in_terms_of(entering_var.varname)
 
         self.objective_function.substitute(entering_var.varname, resultant)
-
         others = [basis_expr for basis_expr in self.basis_exprs if basis_expr != leaving_expr]
         args = [{'basis_expr': b, 'entering_var': entering_var, 'resultant': resultant} for b in others]
 
-        with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
+        with ThreadPoolExecutor(max_workers=self.worker_count) as executor:
             executor.map(self.sub_basis, args)
+
         # p = multiprocessing.Pool.ThreadPool(processes=multiprocessing.cpu_count())
         # p.map(self.sub_basis, args)
 
