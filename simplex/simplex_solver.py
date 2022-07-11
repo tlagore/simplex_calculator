@@ -35,23 +35,23 @@ class SimplexStats():
     def __print_header(self):
         print("\nSimplex Solver Problem Stats")
         print('-'*70)
-        print("| {0:<12}| {1:40}| {2:<10} |".format("Category", "Stat", "Value"))
+        print("| {0:<12}| {1:30}| {2:<20} |".format("Category", "Stat", "Value"))
         print('-'*70)
 
     def __print_stats(self, stats: 'SimplexStats', aux: bool):
         p_type = 'Auxiliary' if aux else 'Main L.P.'
-        print("| {0:<12}| {1:40}| {2:10} |".format('', f"number of pivots:", stats.num_pivots))
-        print("| {0:<12}| {1:40}| {2:10} |".format('', f"number of degenerate pivots:", stats.num_degenerate_pivots))
-        print("| {0:<12}| {1:40}| {2:9.6g}s |".format(p_type, f"avg pivot selection time:", 0 if stats.num_pivots == 0 else stats.pivot_selection_time/stats.num_pivots))
-        print("| {0:<12}| {1:40}| {2:9.6g}s |".format('', f"avg pivot time:", 0 if stats.num_pivots == 0 else stats.pivot_time/stats.num_pivots))
-        print("| {0:<12}| {1:40}| {2:9.2g}s |".format('', f"solution time:", stats.solution_time))
+        print("| {0:<12}| {1:30}| {2:20} |".format('', f"number of pivots:", stats.num_pivots))
+        print("| {0:<12}| {1:30}| {2:20} |".format('', f"number of degenerate pivots:", stats.num_degenerate_pivots))
+        print("| {0:<12}| {1:30}| {2:19.6f}s |".format(p_type, f"avg pivot selection time:", 0 if stats.num_pivots == 0 else stats.pivot_selection_time/stats.num_pivots))
+        print("| {0:<12}| {1:30}| {2:19.6f}s |".format('', f"avg pivot time:", 0 if stats.num_pivots == 0 else stats.pivot_time/stats.num_pivots))
+        print("| {0:<12}| {1:30}| {2:19.2f}s |".format('', f"solution time:", stats.solution_time))
         print('-'*70)
 
     def print_stats(self):
         self.__print_header()
-        print("| {0:<12}| {1:40}| {2:>10} |".format('', 'number of variables: ', self.num_variables))
-        print("| {0:<12}| {1:40}| {2:>10} |".format('Overview', 'number of constraints: ', self.num_constraints))
-        print("| {0:<12}| {1:40}| {2:>10} |".format('', "required auxiliary:", "Yes" if self.required_auxiliary else "No"))
+        print("| {0:<12}| {1:30}| {2:>20} |".format('', 'number of variables: ', self.num_variables))
+        print("| {0:<12}| {1:30}| {2:>20} |".format('Overview', 'number of constraints: ', self.num_constraints))
+        print("| {0:<12}| {1:30}| {2:>20} |".format('', "required auxiliary:", "Yes" if self.required_auxiliary else "No"))
         print('-'*70)
         if self.required_auxiliary:
             self.__print_stats(self.aux_stats, True)

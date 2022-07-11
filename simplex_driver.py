@@ -14,7 +14,7 @@ def main():
             stats = True
 
     simplex_config = SimplexConfig()
-    simplex_config.pivot_method = PivotMethod.LARGEST_COEFFICIENT
+    simplex_config.pivot_method = PivotMethod.LARGEST_INCREASE
     simplex_config.test_cycle_avoidance = False
     solver = sp.parse(sys.stdin, simplex_config)
 

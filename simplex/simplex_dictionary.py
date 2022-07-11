@@ -126,7 +126,7 @@ class SimplexDictionary():
         orig_fn = self.objective_function.deepclone()
 
         # Zero out the objective function
-        obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), Fraction(0)) for idx in range(1, self.n + 1)]
+        obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), Fraction(-1)) for idx in range(1, self.n + 1)]
         obj_lhs = Variable('z', Fraction(1))
         self.objective_function.set_expression(obj_lhs, obj_rhs)
         
