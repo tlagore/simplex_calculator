@@ -20,7 +20,7 @@ def parse(in_file, simplex_config):
 
     return SimplexSolver(obj_fn, constraints, simplex_config)
 
-def parse_constraint(line, constraint_idx) -> LinearExpression:
+def parse_constraint(line, constraint_idx):
     """
     basis_idx is a 0 indexed index for the basis (for setting epsilon)
     constraint_idx is the index of this basis variable
