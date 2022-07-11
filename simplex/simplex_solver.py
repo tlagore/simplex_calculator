@@ -35,23 +35,23 @@ class SimplexStats():
     def __print_header(self):
         print("\nSimplex Solver Problem Stats")
         print('-'*70)
-        print("| {0:<12}| {1:40}| {2:<10} |".format("Category", "Stat", "Value"))
+        print("| {0:<12}| {1:30}| {2:<20} |".format("Category", "Stat", "Value"))
         print('-'*70)
 
     def __print_stats(self, stats: 'SimplexStats', aux: bool):
         p_type = 'Auxiliary' if aux else 'Main L.P.'
-        print("| {0:<12}| {1:40}| {2:10} |".format('', f"number of pivots:", stats.num_pivots))
-        print("| {0:<12}| {1:40}| {2:10} |".format('', f"number of degenerate pivots:", stats.num_degenerate_pivots))
-        print("| {0:<12}| {1:40}| {2:9.6f}s |".format(p_type, f"avg pivot selection time:", 0 if stats.num_pivots == 0 else stats.pivot_selection_time/stats.num_pivots))
-        print("| {0:<12}| {1:40}| {2:9.6f}s |".format('', f"avg pivot time:", 0 if stats.num_pivots == 0 else stats.pivot_time/stats.num_pivots))
-        print("| {0:<12}| {1:40}| {2:9.2f}s |".format('', f"solution time:", stats.solution_time))
+        print("| {0:<12}| {1:30}| {2:20} |".format('', f"number of pivots:", stats.num_pivots))
+        print("| {0:<12}| {1:30}| {2:20} |".format('', f"number of degenerate pivots:", stats.num_degenerate_pivots))
+        print("| {0:<12}| {1:30}| {2:19.6f}s |".format(p_type, f"avg pivot selection time:", 0 if stats.num_pivots == 0 else stats.pivot_selection_time/stats.num_pivots))
+        print("| {0:<12}| {1:30}| {2:19.6f}s |".format('', f"avg pivot time:", 0 if stats.num_pivots == 0 else stats.pivot_time/stats.num_pivots))
+        print("| {0:<12}| {1:30}| {2:19.2f}s |".format('', f"solution time:", stats.solution_time))
         print('-'*70)
 
     def print_stats(self):
         self.__print_header()
-        print("| {0:<12}| {1:40}| {2:>10} |".format('', 'number of variables: ', self.num_variables))
-        print("| {0:<12}| {1:40}| {2:>10} |".format('Overview', 'number of constraints: ', self.num_constraints))
-        print("| {0:<12}| {1:40}| {2:>10} |".format('', "required auxiliary:", "Yes" if self.required_auxiliary else "No"))
+        print("| {0:<12}| {1:30}| {2:>20} |".format('', 'number of variables: ', self.num_variables))
+        print("| {0:<12}| {1:30}| {2:>20} |".format('Overview', 'number of constraints: ', self.num_constraints))
+        print("| {0:<12}| {1:30}| {2:>20} |".format('', "required auxiliary:", "Yes" if self.required_auxiliary else "No"))
         print('-'*70)
         if self.required_auxiliary:
             self.__print_stats(self.aux_stats, True)
@@ -146,7 +146,7 @@ class SimplexSolver():
                 self.s_dict.pivot(entering_var, leaving_expr)
                 self.stats.pivot_time += (time.perf_counter() - st)
 
-                self.debug_print(repr(self))
+                self.debug_print(str(self))
                 self.debug_print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}") 
                 updated_val = self.s_dict.get_objective_value()
                 self.stats.num_pivots += 1
@@ -154,7 +154,7 @@ class SimplexSolver():
                 if cur_val == updated_val:
                     self.stats.num_degenerate_pivots += 1
 
-                # print(f'{self.stats.num_pivots}', end='\r')
+                print(f'{self.stats.num_pivots}', end='\r')
 
         self.stats.solution_time = time.time() - start_time
         
@@ -167,7 +167,7 @@ class SimplexSolver():
     def print_result(self, state):
         if state == SimplexState.OPTIMAL:
             self.debug_print("Optimal Dictionary:")
-            self.debug_print(repr(self))
+            self.debug_print(str(self))
             self.debug_print(f"Objective value: {self.s_dict.objective_function.get_constant().coefficient}")
             objective_value = self.s_dict.objective_function.get_constant().coefficient
             print("optimal")
@@ -177,11 +177,11 @@ class SimplexSolver():
         elif state == SimplexState.INFEASIBLE:
             print('infeasible')
             self.debug_print("INFEASIBLE!")
-            self.debug_print(repr(self))
+            self.debug_print(str(self))
         elif state == SimplexState.UNBOUNDED:
             print('unbounded')
             self.debug_print("UNBOUNDED!")
-            self.debug_print(repr(self))
+            self.debug_print(str(self))
 
     def format_solution(self, fn):
         return ' '.join([self.format_float(value) for (_, value) in fn])
@@ -193,5 +193,5 @@ class SimplexSolver():
         else:
             return f'{float(flt):.0f}'
 
-    def __repr__(self):
-        return repr(self.s_dict)
+    # def __str__(self):
+    #     return str(self.s_dict)

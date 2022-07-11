@@ -3,6 +3,10 @@ from math import inf
 from simplex.linear_expressions import LinearExpression, Variable
 from enum import Enum
 from fractions import Fraction
+from concurrent.futures import ThreadPoolExecutor
+import math
+import multiprocessing
+# import threading
 
 class PivotMethod(Enum):
     LARGEST_COEFFICIENT = 1
@@ -31,6 +35,9 @@ class SimplexDictionary():
         self.basis_exprs = [constraint.deepclone() for constraint in constraints]
         self.objective_function = objective_function.deepclone()
         self.x_vars = [x.deepclone() for x in self.objective_function.get_vars()]
+        self.worker_count = int(math.ceil(multiprocessing.cpu_count()/2.0))
+
+        # self.basis_comp_lock = threading.Semaphore(multiprocessing.cpu_count())
 
         self.iter = 1
 
@@ -119,7 +126,7 @@ class SimplexDictionary():
         orig_fn = self.objective_function.deepclone()
 
         # Zero out the objective function
-        obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), Fraction(0)) for idx in range(1, self.n + 1)]
+        obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), Fraction(-1)) for idx in range(1, self.n + 1)]
         obj_lhs = Variable('z', Fraction(1))
         self.objective_function.set_expression(obj_lhs, obj_rhs)
         
@@ -386,9 +393,18 @@ class SimplexDictionary():
             return None
 
         self.debug_print('Breaking ties:\n{0}'.format("\n".join([str(expression) for expression in expressions])))
-        expressions.sort(key=functools.cmp_to_key(lambda x,y: x.compare_eps(y)))
+        # expressions.sort(key=functools.cmp_to_key(lambda x,y: x.compare_eps(y)))
+        top = max(expressions)
         self.debug_print(f'Chose: {expressions[0]}')
-        return expressions[0]
+        return top
+        # return expressions[0]
+
+    def sub_basis(self, args):
+        basis_expr = args['basis_expr']
+        entering_var = args['entering_var']
+        resultant = args['resultant']
+
+        basis_expr.substitute(entering_var.varname, resultant)
 
     def pivot(self, entering_var, leaving_expr):
         """
@@ -400,12 +416,20 @@ class SimplexDictionary():
         resultant = leaving_expr.in_terms_of(entering_var.varname)
 
         self.objective_function.substitute(entering_var.varname, resultant)
+        others = [basis_expr for basis_expr in self.basis_exprs if basis_expr != leaving_expr]
+        args = [{'basis_expr': b, 'entering_var': entering_var, 'resultant': resultant} for b in others]
 
-        for basis_expr in self.basis_exprs:
-            if basis_expr == leaving_expr:
-                continue
+        with ThreadPoolExecutor(max_workers=self.worker_count) as executor:
+            executor.map(self.sub_basis, args)
+
+        # p = multiprocessing.Pool.ThreadPool(processes=multiprocessing.cpu_count())
+        # p.map(self.sub_basis, args)
+
+        # for basis_expr in self.basis_exprs:
+        #     if basis_expr == leaving_expr:
+        #         continue
             
-            basis_expr.substitute(entering_var.varname, resultant)
+        #     basis_expr.substitute(entering_var.varname, resultant)
 
         if self.config.test_cycle_avoidance:
             self.__remember_basis()
@@ -509,15 +533,14 @@ class SimplexDictionary():
 
         return True
 
-
-    def __repr__(self):
-        msg = '\n----------------------------------\n'
-        msg += repr(self.objective_function)
-        msg += '\n----------------------------------'
+    # def __str__(self):
+    #     msg = '\n----------------------------------\n'
+    #     msg += str(self.objective_function)
+    #     msg += '\n----------------------------------'
         
-        for basis_expr in self.basis_exprs:
-            msg += f'\n{repr(basis_expr)}'
+    #     for basis_expr in self.basis_exprs:
+    #         msg += f'\n{str(basis_expr)}'
 
-        msg += '\n----------------------------------'
+    #     msg += '\n----------------------------------'
 
-        return msg
+    #     return msg
