@@ -193,5 +193,5 @@ class SimplexSolver():
         else:
             return f'{float(flt):.0f}'
 
-    def __str__(self):
-        return str(self.s_dict)
+    # def __str__(self):
+    #     return str(self.s_dict)
