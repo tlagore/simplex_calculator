@@ -154,7 +154,7 @@ class SimplexSolver():
                 if cur_val == updated_val:
                     self.stats.num_degenerate_pivots += 1
 
-                print(f'{self.stats.num_pivots}', end='\r')
+                # print(f'{self.stats.num_pivots}', end='\r')
 
         self.stats.solution_time = time.time() - start_time
         
