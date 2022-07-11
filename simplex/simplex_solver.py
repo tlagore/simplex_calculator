@@ -66,16 +66,16 @@ class SimplexSolver():
 
     def __init__(self, objective_function: LinearExpression, constraints, config: SimplexConfig=None):
         """ """
-        self.s_dict = SimplexDictionary(objective_function, constraints)
-        self.degenerate_count = 0
-        self.stats = SimplexStats()
-        self.stats.num_variables = self.s_dict.n
-        self.stats.num_constraints = len(constraints)
-
         if config is not None:
             self.config = config
         else:
             self.config = SimplexConfig()
+
+        self.s_dict = SimplexDictionary(objective_function, constraints, config)
+        self.degenerate_count = 0
+        self.stats = SimplexStats()
+        self.stats.num_variables = self.s_dict.n
+        self.stats.num_constraints = len(constraints)
 
         self.pivot_method = self.config.pivot_method
 

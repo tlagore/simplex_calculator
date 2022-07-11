@@ -19,11 +19,12 @@ class SimplexConfig():
     Currently unused, but might be used for to configure different methods of solving down the line
     """
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
+    test_cycle_avoidance = False
 
 class SimplexDictionary():
     DEBUG = False
 
-    def __init__(self, objective_function: LinearExpression, constraints):
+    def __init__(self, objective_function: LinearExpression, constraints, config = None):
         """ """
         self.seen_basis = {}
 
@@ -32,7 +33,14 @@ class SimplexDictionary():
         self.x_vars = [x.deepclone() for x in self.objective_function.get_vars()]
 
         self.iter = 1
-        # self.__remember_basis()
+
+        if config is None:
+            self.config = SimplexConfig()
+        else:
+            self.config = config
+
+        if self.config.test_cycle_avoidance:
+            self.__remember_basis()
 
         self.is_dual = False
         
@@ -399,7 +407,9 @@ class SimplexDictionary():
             
             basis_expr.substitute(entering_var.varname, resultant)
 
-        # self.__remember_basis()
+        if self.config.test_cycle_avoidance:
+            self.__remember_basis()
+            
         self.update_state()
         
     def get_state(self):
