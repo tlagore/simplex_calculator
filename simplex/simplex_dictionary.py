@@ -509,14 +509,13 @@ class SimplexDictionary():
 
         return True
 
-
-    def __repr__(self):
+    def __str__(self):
         msg = '\n----------------------------------\n'
-        msg += repr(self.objective_function)
+        msg += str(self.objective_function)
         msg += '\n----------------------------------'
         
         for basis_expr in self.basis_exprs:
-            msg += f'\n{repr(basis_expr)}'
+            msg += f'\n{str(basis_expr)}'
 
         msg += '\n----------------------------------'
 

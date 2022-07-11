@@ -146,7 +146,7 @@ class SimplexSolver():
                 self.s_dict.pivot(entering_var, leaving_expr)
                 self.stats.pivot_time += (time.perf_counter() - st)
 
-                self.debug_print(repr(self))
+                self.debug_print(str(self))
                 self.debug_print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}") 
                 updated_val = self.s_dict.get_objective_value()
                 self.stats.num_pivots += 1
@@ -167,7 +167,7 @@ class SimplexSolver():
     def print_result(self, state):
         if state == SimplexState.OPTIMAL:
             self.debug_print("Optimal Dictionary:")
-            self.debug_print(repr(self))
+            self.debug_print(str(self))
             self.debug_print(f"Objective value: {self.s_dict.objective_function.get_constant().coefficient}")
             objective_value = self.s_dict.objective_function.get_constant().coefficient
             print("optimal")
@@ -177,11 +177,11 @@ class SimplexSolver():
         elif state == SimplexState.INFEASIBLE:
             print('infeasible')
             self.debug_print("INFEASIBLE!")
-            self.debug_print(repr(self))
+            self.debug_print(str(self))
         elif state == SimplexState.UNBOUNDED:
             print('unbounded')
             self.debug_print("UNBOUNDED!")
-            self.debug_print(repr(self))
+            self.debug_print(str(self))
 
     def format_solution(self, fn):
         return ' '.join([self.format_float(value) for (_, value) in fn])
@@ -193,5 +193,5 @@ class SimplexSolver():
         else:
             return f'{float(flt):.0f}'
 
-    def __repr__(self):
-        return repr(self.s_dict)
+    def __str__(self):
+        return str(self.s_dict)

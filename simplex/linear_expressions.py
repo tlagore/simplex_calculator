@@ -1,5 +1,14 @@
 from fractions import Fraction
 import functools
+from enum import Enum
+
+class VariableType(Enum):
+    CONSTANT = 0
+    X = 1
+    Y = 2
+    EPSILON = 3
+    ZETA = 4
+
 
 class Variable():
     """ """
@@ -7,15 +16,34 @@ class Variable():
     CONSTANT = 'c'
     EPSILON = 'e'
 
+    # x = 'x'
+    # constant = 'c'
+    # epsilon = 'e'
+
     def __init__(self, varname: str, coefficient: Fraction):
         """ """
         self.coefficient = coefficient
         self.varname = varname
 
+        if varname.startswith('z'):
+            self.vartype = VariableType.ZETA
+            self.idx = 0
+        else:
+            if varname.startswith('c'):
+                self.vartype = VariableType.CONSTANT
+            elif varname.startswith('x'):
+                self.vartype = VariableType.X
+            elif varname.startswith('y'):
+                self.vartype = VariableType.Y
+            elif varname.startswith('e'):
+                self.vartype = VariableType.EPSILON
+
+            self.idx = self.__var_idx(varname)
+
     def deepclone(self):
         return Variable(self.varname, Fraction(self.coefficient.numerator, self.coefficient.denominator))
 
-    def __repr__(self):
+    def __str__(self):
         msg = ''
         msg += ' + ' if self.coefficient >= 0  else ' - '
         msg += f'({str(abs(self.coefficient))})'
@@ -32,21 +60,39 @@ class Variable():
         return n
 
     def var_comp(self, other: 'Variable'):
-        if self.varname == Variable.CONSTANT:
+        if self.vartype == VariableType.CONSTANT:
             return -1
         
-        if other.varname == Variable.CONSTANT:
+        if other.vartype == VariableType.CONSTANT:
             return 1
 
-        cmp = self.__similarity_comp(self.varname, other.varname, Variable.EPSILON)
+        cmp = self.__similarity_comp(self, other, VariableType.X)
         if cmp == 0:
-            cmp = self.__similarity_comp(self.varname, other.varname, 'x')
+            cmp = self.__similarity_comp(self, other, VariableType.EPSILON)
+
             if cmp == 0:
-                return self.__similarity_comp(self.varname, other.varname, 'y')
+                return self.__similarity_comp(self, other, VariableType.Y)
             else:
                 return cmp
         else:
             return cmp
+
+    # def var_comp(self, other: 'Variable'):
+    #     if self.varname == Variable.CONSTANT:
+    #         return -1
+        
+    #     if other.varname == Variable.CONSTANT:
+    #         return 1
+
+    #     cmp = self.__similarity_comp(self.varname, other.varname, Variable.EPSILON)
+    #     if cmp == 0:
+    #         cmp = self.__similarity_comp(self.varname, other.varname, 'x')
+    #         if cmp == 0:
+    #             return self.__similarity_comp(self.varname, other.varname, 'y')
+    #         else:
+    #             return cmp
+    #     else:
+    #         return cmp
 
     def __var_idx(self, var):
         if var == Variable.CONSTANT:
@@ -54,19 +100,30 @@ class Variable():
         else:
             return int(var.replace('x', '').replace('y', '').replace(Variable.EPSILON, ''))
 
-    def __similarity_comp(self, a, b, prefix):
-        if a.startswith(prefix):
-            if b.startswith(prefix):
-                if self.__var_idx(a) < self.__var_idx(b):
+    def __similarity_comp(self, a: 'Variable', b: 'Variable', type: VariableType):
+        if a.vartype == type:
+            if b.vartype == type:
+                if a.idx < b.idx:
                     return -1
                 else:
                     return 1
-            else:
-                return -1
-        elif b.startswith(prefix):
+        elif b.vartype == type:
             return 1
         else:
             return 0
+
+        # if a.startswith(prefix):
+        #     if b.startswith(prefix):
+        #         if self.__var_idx(a) < self.__var_idx(b):
+        #             return -1
+        #         else:
+        #             return 1
+        #     else:
+        #         return -1
+        # elif b.startswith(prefix):
+        #     return 1
+        # else:
+        #     return 0
 
 
     """
@@ -310,7 +367,7 @@ class LinearExpression():
         # deepclone in case caller is reusing variables
         self.__rhs = {val.varname:val.deepclone() for val in rhs}
 
-        self.__num_terms = len([x for x in rhs if x.varname.startswith('x') or x.varname.startswith('y')])
+        self.__num_terms = len([x for x in rhs if x.vartype == VariableType.X or x.vartype == VariableType.Y])
 
         if epsilon:
             self.set_epsilon(epsilon[0], epsilon[1])
@@ -374,6 +431,18 @@ class LinearExpression():
         # same as dividing by itself
         self.__lhs.coefficient = Fraction(1)
 
+    def __gt__(self, other):
+        return self.compare_eps(other) == -1
+
+    def lgst_eps(self):
+        """ """
+        for i in range(1, self.num_epsilon+1):
+            var = f'{Variable.EPSILON}{i}'
+            eps = self.get_var(var)
+
+            if eps.coefficient > 0:
+                return (eps.idx, eps.coefficient)
+
     def get_vars(self, include_constant=False):
         vars = []
         for var in self.__rhs.values():
@@ -413,7 +482,7 @@ class LinearExpression():
 
         return True
 
-    def __repr__(self):
+    def __str__(self):
         rhs_str = ""
 
         rhs_vars = [val for val in self.__rhs.values() if not val.varname.startswith(Variable.EPSILON)]
@@ -422,7 +491,7 @@ class LinearExpression():
         # rhs_vars.sort(key=lambda v: v.varname)
 
         for var in rhs_vars:
-            rhs_str += repr(var)
+            rhs_str += str(var)
 
         prefix = '' if self.__lhs.coefficient >= 0  else '-'
 

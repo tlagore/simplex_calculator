@@ -180,7 +180,7 @@ class Rational():
         return comparator(float(self), float(other))
 
     ## OVERRIDES:
-    def __repr__(self):
+    def __str__(self):
         """ string format a/b or a if b = 1"""
         return "({0}{1}{2})".format('+' if self.numerator > 0 else '', self.numerator, '/' + str(self.denominator) if self.denominator != 1 else '')
 
