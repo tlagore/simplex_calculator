@@ -1,6 +1,7 @@
 import functools
 import math
 import multiprocessing
+import sys
 
 from concurrent.futures import ThreadPoolExecutor
 from enum import Enum
@@ -57,10 +58,9 @@ class SimplexDictionary():
         self.m = len(constraints)
         self.update_state(init=True)
 
-    def debug_print(self, *args, **kwargs):
+    def debug_print(self, msg):
         if self.DEBUG:
-            print('-- ', end='')
-            print(*args, **kwargs)
+            sys.stderr.write("{0}\n".format(msg))
 
     def get_basis_values(self):
         """
@@ -497,8 +497,6 @@ class SimplexDictionary():
     def deepequals(self, other_dict: 'SimplexDictionary'):
         """ 
             check everything is identical
-        
-            deepequals is onlyt used for testing duality, so it has print statements in it
         """
         if not self.objective_function.deepequals(other_dict.objective_function):
             return False

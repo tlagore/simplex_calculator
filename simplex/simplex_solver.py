@@ -35,26 +35,26 @@ class SimplexStats():
         self.pivot_time = 0
 
     def __print_header(self):
-        print("\nSimplex Solver Problem Stats")
-        print('-'*70)
-        print("| {0:<12}| {1:30}| {2:<20} |".format("Category", "Stat", "Value"))
-        print('-'*70)
+        sys.stderr.write("\nSimplex Stats\n")
+        sys.stderr.write("{0}\n".format('-'*70))
+        sys.stderr.write("| {0:<12}| {1:30}| {2:<20} |\n".format("Category", "Stat", "Value"))
+        sys.stderr.write("{0}\n".format('-'*70))
 
     def __print_stats(self, stats: 'SimplexStats', aux: bool):
         p_type = 'Auxiliary' if aux else 'Main L.P.'
-        print("| {0:<12}| {1:30}| {2:20} |".format('', f"number of pivots:", stats.num_pivots))
-        print("| {0:<12}| {1:30}| {2:20} |".format('', f"number of degenerate pivots:", stats.num_degenerate_pivots))
-        print("| {0:<12}| {1:30}| {2:19.6f}s |".format(p_type, f"avg pivot selection time:", 0 if stats.num_pivots == 0 else stats.pivot_selection_time/stats.num_pivots))
-        print("| {0:<12}| {1:30}| {2:19.6f}s |".format('', f"avg pivot time:", 0 if stats.num_pivots == 0 else stats.pivot_time/stats.num_pivots))
-        print("| {0:<12}| {1:30}| {2:19.2f}s |".format('', f"solution time:", stats.solution_time))
-        print('-'*70)
+        sys.stderr.write("| {0:<12}| {1:30}| {2:20} |\n".format('', f"number of pivots:", stats.num_pivots))
+        sys.stderr.write("| {0:<12}| {1:30}| {2:20} |\n".format('', f"number of degenerate pivots:", stats.num_degenerate_pivots))
+        sys.stderr.write("| {0:<12}| {1:30}| {2:19.6f}s |\n".format(p_type, f"avg pivot selection time:", 0 if stats.num_pivots == 0 else stats.pivot_selection_time/stats.num_pivots))
+        sys.stderr.write("| {0:<12}| {1:30}| {2:19.6f}s |\n".format('', f"avg pivot time:", 0 if stats.num_pivots == 0 else stats.pivot_time/stats.num_pivots))
+        sys.stderr.write("| {0:<12}| {1:30}| {2:19.2f}s |\n".format('', f"solution time:", stats.solution_time))
+        sys.stderr.write("{0}\n".format('-'*70))
 
     def print_stats(self):
         self.__print_header()
-        print("| {0:<12}| {1:30}| {2:>20} |".format('', 'number of variables: ', self.num_variables))
-        print("| {0:<12}| {1:30}| {2:>20} |".format('Overview', 'number of constraints: ', self.num_constraints))
-        print("| {0:<12}| {1:30}| {2:>20} |".format('', "required auxiliary:", "Yes" if self.required_auxiliary else "No"))
-        print('-'*70)
+        sys.stderr.write("| {0:<12}| {1:30}| {2:>20} |\n".format('', 'number of variables: ', self.num_variables))
+        sys.stderr.write("| {0:<12}| {1:30}| {2:>20} |\n".format('Overview', 'number of constraints: ', self.num_constraints))
+        sys.stderr.write("| {0:<12}| {1:30}| {2:>20} |\n".format('', "required auxiliary:", "Yes" if self.required_auxiliary else "No"))
+        sys.stderr.write("{0}\n".format('-'*70))
         if self.required_auxiliary:
             self.__print_stats(self.aux_stats, True)
 
@@ -85,10 +85,9 @@ class SimplexSolver():
         self.DEBUG = True
         self.s_dict.DEBUG = True
 
-    def debug_print(self, *args, **kwargs):
+    def debug_print(self, msg):
         if self.DEBUG:
-            print('-- ', end='')
-            print(*args, **kwargs)
+            sys.stderr.write("{0}\n".format(msg))
 
     def make_feasible(self):
         """ 
@@ -156,11 +155,11 @@ class SimplexSolver():
                 if cur_val == updated_val:
                     self.stats.num_degenerate_pivots += 1
 
-                # sys.stderr.write( "{0}{1}\r".format("Aux pivots: " if auxiliary else "Main LP pivots: ", self.stats.num_pivots) )
+                sys.stderr.write( "{0}{1}\r".format("Dual LP pivots: " if auxiliary else "Main LP pivots: ", self.stats.num_pivots) )
 
         self.stats.solution_time = time.time() - start_time
 
-        # sys.stderr.write("\n")
+        sys.stderr.write("\n")
         
         if not auxiliary:
             state = self.s_dict.get_state()

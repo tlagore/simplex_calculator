@@ -26,42 +26,8 @@ The positivity constraints are implied, and not required.
 ## Running the program
 The program expects the input to be fed through stdin. No external libraries are required to run the program. Run the program as follows:
 
-`python3 simplex_driver.py [debug|stats] < input.txt`
+`python3 simplex_driver.py [debug] < input.txt`
 
-`debug`/`stats` is an optional parameter. You may only specify one or the other. They are explained below:
-
-- `stats`
-    - If the `stats` flag is supplied, the program will print the statistics of the L.P. after running. 
-    - Example:
-
-```
-python3 simplex_driver.py stats < data/test_LPs_volume1/input/netlib_adlittle.txt 
-optimal
--225495
-22.85455 0.5454545 4.626937 0 0 35.10714 4.793015 2.942801 0 0 0 54.28986 0 0 108 0 0 0 11.14599 1.854006 0 0 0 0 211.4223 53.57767 0 25.62903 0 83.71014 3.803724 3.920126 0 0 0 134 31 0 0 0 0 60 111.7273 0 51.90909 34 0 0 0 41.5 0 15.47882 0 15 0 0 3.1 0 0.6909091 0 4.143548 171.3012 0 9.806141 0 0 33.46837 9.53163 10.29308 8.906925 0 0 6.1 0 9.792857 313.1974 51.28813 268.6988 0 13.2 0 1.31448 0.5032609 0 0 0 0 0 0 0 0 13.5 8.737073 0 31.2 0 0
-
-Simplex Solver Problem Stats
-----------------------------------------------------------------------
-| Category    | Stat                                    | Value      |
-----------------------------------------------------------------------
-|             | number of variables:                    |         97 |
-| Overview    | number of constraints:                  |         71 |
-|             | required auxiliary:                     |        Yes |
-----------------------------------------------------------------------
-|             | number of pivots:                       |        311 |
-|             | number of degenerate pivots:            |        311 |
-| Auxiliary   | avg pivot selection time:               |  0.274903s |
-|             | avg pivot time:                         |  0.692572s |
-|             | solution time:                          |    176.99s |
-----------------------------------------------------------------------
-|             | number of pivots:                       |         94 |
-|             | number of degenerate pivots:            |         27 |
-| Main L.P.   | avg pivot selection time:               |  0.011632s |
-|             | avg pivot time:                         |  0.291614s |
-|             | solution time:                          |    241.43s |
-----------------------------------------------------------------------
-
-```
 - `debug`
     - If the `debug` flag is supplied, the program will print all decisions being made and intermediary dictionaries. Flagging debug will also print stats (warning: large LPs do not have pretty debug output)
 

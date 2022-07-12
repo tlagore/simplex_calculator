@@ -1,10 +1,13 @@
+import sys
 from fractions import Fraction
+
 from simplex.linear_expressions import LinearExpression, Variable
 from simplex.simplex_solver import SimplexSolver
 
 def parse(in_file, simplex_config):
     """
     """
+    sys.stderr.write("Parsing LP...\n")
     line = in_file.readline().strip()
     (obj_fn, n) = parse_obj_function(line)
 
@@ -47,10 +50,7 @@ def parse_rhs(parts, constant, obj_fn=False):
     for idx, part in enumerate(parts):
         varname = f'x{idx+1}'
 
-        # print (Variable(varname, Fraction(part)), end='')
         coef = Fraction(part) if obj_fn else -Fraction(part)
         rhs.append(Variable(varname, coef))
-    
-    # print(f' <= {constant}')
 
     return rhs

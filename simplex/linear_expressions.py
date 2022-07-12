@@ -1,5 +1,7 @@
-from fractions import Fraction
 import functools
+import sys
+
+from fractions import Fraction
 from enum import Enum
 
 class VariableType(Enum):
@@ -77,22 +79,6 @@ class Variable():
         else:
             return cmp
 
-    # def var_comp(self, other: 'Variable'):
-    #     if self.varname == Variable.CONSTANT:
-    #         return -1
-        
-    #     if other.varname == Variable.CONSTANT:
-    #         return 1
-
-    #     cmp = self.__similarity_comp(self.varname, other.varname, Variable.EPSILON)
-    #     if cmp == 0:
-    #         cmp = self.__similarity_comp(self.varname, other.varname, 'x')
-    #         if cmp == 0:
-    #             return self.__similarity_comp(self.varname, other.varname, 'y')
-    #         else:
-    #             return cmp
-    #     else:
-    #         return cmp
 
     def __var_idx(self, var):
         if var == Variable.CONSTANT:
@@ -111,19 +97,6 @@ class Variable():
             return 1
         else:
             return 0
-
-        # if a.startswith(prefix):
-        #     if b.startswith(prefix):
-        #         if self.__var_idx(a) < self.__var_idx(b):
-        #             return -1
-        #         else:
-        #             return 1
-        #     else:
-        #         return -1
-        # elif b.startswith(prefix):
-        #     return 1
-        # else:
-        #     return 0
 
 
     """
@@ -477,7 +450,7 @@ class LinearExpression():
         for key, var in self.__rhs.items():
             other_var = other.get_var(key)
             if var.coefficient != other_var.coefficient:
-                print(f"Variable: '{key}' did not match. {var.coefficient} != {other_var.coefficient}")
+                sys.stderr.write(f"Variable: '{key}' did not match. {var.coefficient} != {other_var.coefficient}\n")
                 return False
 
         return True
