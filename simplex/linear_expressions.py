@@ -43,12 +43,12 @@ class Variable():
     def deepclone(self):
         return Variable(self.varname, Fraction(self.coefficient.numerator, self.coefficient.denominator))
 
-    # def __str__(self):
-    #     msg = ''
-    #     msg += ' + ' if self.coefficient >= 0  else ' - '
-    #     msg += f'({str(abs(self.coefficient))})'
-    #     msg += self.varname if self.varname != Variable.CONSTANT else ''
-    #     return msg
+    def to_string(self):
+        msg = ''
+        msg += ' + ' if self.coefficient >= 0  else ' - '
+        msg += f'({str(abs(self.coefficient))})'
+        msg += self.varname if self.varname != Variable.CONSTANT else ''
+        return msg
 
     # negation -
     def __neg__(self) -> 'Variable':
@@ -482,17 +482,17 @@ class LinearExpression():
 
         return True
 
-    # def __str__(self):
-    #     rhs_str = ""
+    def to_string(self):
+        rhs_str = ""
 
-    #     rhs_vars = [val for val in self.__rhs.values() if not val.varname.startswith(Variable.EPSILON)]
-    #     rhs_vars.sort(key=functools.cmp_to_key(lambda x,y: x.var_comp(y)))
+        rhs_vars = [val for val in self.__rhs.values() if not val.varname.startswith(Variable.EPSILON)]
+        rhs_vars.sort(key=functools.cmp_to_key(lambda x,y: x.var_comp(y)))
 
-    #     # rhs_vars.sort(key=lambda v: v.varname)
+        # rhs_vars.sort(key=lambda v: v.varname)
 
-    #     for var in rhs_vars:
-    #         rhs_str += str(var)
+        for var in rhs_vars:
+            rhs_str += var.to_string()
 
-    #     prefix = '' if self.__lhs.coefficient >= 0  else '-'
+        prefix = '' if self.__lhs.coefficient >= 0  else '-'
 
-    #     return f'{prefix}{self.__lhs.varname} = {rhs_str}'
+        return f'{prefix}{self.__lhs.varname} = {rhs_str}'

@@ -2,18 +2,27 @@
 # example usage: sh test.sh data/test_LPs_volume2/input/ resutlts/ data/test_LPs_volume2/output/
 # WARNING: If using on test_LPs_volume1, the solver will take a LONG TIME on the larger LPs
 
-INPUT_DIR=$1
-OUTPUT_DIR=$2
-RESULT_DIR=$3
+OUTPUT_DIR=$1
 
 if [ ! -d "$OUTPUT_DIR" ]
 then
     mkdir -p "$OUTPUT_DIR"
 fi
 
-for f in $INPUT_DIR/*; do
-    echo "running on $f"
-    filename=$(basename ${f})
-    python3 simplex_driver.py < "$f" > "$OUTPUT_DIR/$filename"
-    diff "$OUTPUT_DIR/$filename" "$RESULT_DIR/$filename"
+for dir in 'test_LPs_volume1' 'test_LPs_volume2'; do # data//input/' 'data/test_LPs_volume2/input/'; do
+    input_dir="data/$dir/input"
+    result_dir="data/$dir/output"
+
+    if [ ! -d "$OUTPUT_DIR/$dir" ]
+    then
+        mkdir -p "$OUTPUT_DIR/$dir"
+    fi
+
+    echo $input_dir
+    for f in $input_dir/*; do
+        echo "running on $f"
+        filename=$(basename ${f})
+        python3 simplex_driver.py < "$f" > "$OUTPUT_DIR/$dir/$filename"
+        diff "$result_dir/$filename" "$OUTPUT_DIR/$dir/$filename"
+    done
 done

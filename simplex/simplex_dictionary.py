@@ -1,12 +1,12 @@
 import functools
-from math import inf
-from simplex.linear_expressions import LinearExpression, Variable
-from enum import Enum
-from fractions import Fraction
-from concurrent.futures import ThreadPoolExecutor
 import math
 import multiprocessing
-# import threading
+
+from concurrent.futures import ThreadPoolExecutor
+from enum import Enum
+from fractions import Fraction
+from math import inf
+from simplex.linear_expressions import LinearExpression, Variable
 
 class PivotMethod(Enum):
     LARGEST_COEFFICIENT = 1
@@ -23,7 +23,6 @@ class SimplexConfig():
     Currently unused, but might be used for to configure different methods of solving down the line
     """
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
-    test_cycle_avoidance = False
 
 class SimplexDictionary():
     DEBUG = False
@@ -46,28 +45,11 @@ class SimplexDictionary():
         else:
             self.config = config
 
-        if self.config.test_cycle_avoidance:
-            self.__remember_basis()
-
         self.is_dual = False
         
-        # helpful if we need to iterate for Bland's method.
-        # -1 because there is a constant in the objective function
         self.n = self.objective_function.num_terms()
         self.m = len(constraints)
         self.update_state(init=True)
-
-    def __remember_basis(self):
-        rhs_vars = [expr.get_lhs() for expr in self.basis_exprs]
-        rhs_vars.sort(key=functools.cmp_to_key(lambda x,y: x.var_comp(y)))
-        rhs_str = [var.varname for var in rhs_vars]
-        rhs_hash = hash(''.join(rhs_str))
-
-        if rhs_hash in self.seen_basis:
-            raise Exception(f"OH NO! We have seen this basis before on iteration: {self.seen_basis[rhs_hash]}")
-
-        self.seen_basis[hash(''.join(rhs_str))] = self.iter
-        self.iter += 1
 
     def debug_print(self, *args, **kwargs):
         if self.DEBUG:
@@ -378,9 +360,9 @@ class SimplexDictionary():
         if len(expressions) == 0:
             return None
 
-        self.debug_print('Breaking ties:\n{0}'.format("\n".join([str(expression[1]) for expression in expressions])))
+        self.debug_print('Breaking ties:\n{0}'.format("\n".join([expression[1].to_string() for expression in expressions])))
         expressions.sort(key=functools.cmp_to_key(lambda x,y: x[1].compare_eps(y[1])))
-        self.debug_print(f'Chose: {expressions[0]}')
+        self.debug_print(f'Chose: {expressions[0][1].to_string()}')
         return expressions[0]
 
     def __break_ties(self, expressions):
@@ -392,12 +374,12 @@ class SimplexDictionary():
         if len(expressions) == 0:
             return None
 
-        self.debug_print('Breaking ties:\n{0}'.format("\n".join([str(expression) for expression in expressions])))
-        # expressions.sort(key=functools.cmp_to_key(lambda x,y: x.compare_eps(y)))
+        self.debug_print('Breaking ties:\n{0}'.format("\n".join([expression.to_string() for expression in expressions])))
+        
+        # We overrode the ge in LinearExpression so max just natively works
         top = max(expressions)
-        self.debug_print(f'Chose: {expressions[0]}')
+        self.debug_print(f'Chose: {expressions[0].to_string()}')
         return top
-        # return expressions[0]
 
     def sub_basis(self, args):
         basis_expr = args['basis_expr']
@@ -421,18 +403,6 @@ class SimplexDictionary():
 
         with ThreadPoolExecutor(max_workers=self.worker_count) as executor:
             executor.map(self.sub_basis, args)
-
-        # p = multiprocessing.Pool.ThreadPool(processes=multiprocessing.cpu_count())
-        # p.map(self.sub_basis, args)
-
-        # for basis_expr in self.basis_exprs:
-        #     if basis_expr == leaving_expr:
-        #         continue
-            
-        #     basis_expr.substitute(entering_var.varname, resultant)
-
-        if self.config.test_cycle_avoidance:
-            self.__remember_basis()
             
         self.update_state()
         
@@ -533,14 +503,14 @@ class SimplexDictionary():
 
         return True
 
-    # def __str__(self):
-    #     msg = '\n----------------------------------\n'
-    #     msg += str(self.objective_function)
-    #     msg += '\n----------------------------------'
+    def to_string(self):
+        msg = '\n----------------------------------\n'
+        msg += self.objective_function.to_string()
+        msg += '\n----------------------------------'
         
-    #     for basis_expr in self.basis_exprs:
-    #         msg += f'\n{str(basis_expr)}'
+        for basis_expr in self.basis_exprs:
+            msg += f'\n{basis_expr.to_string()}'
 
-    #     msg += '\n----------------------------------'
+        msg += '\n----------------------------------'
 
-    #     return msg
+        return msg

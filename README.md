@@ -109,29 +109,6 @@ x7 =  + (1) + (0)e1 + (0)e2 + (1)e3 + (0)x1 + (0)x2 - (1)x3 + (0)x4
 
 Under the largest coefficient pivot rule, $x_1$ will be chosen as the entering variable. However, there is a tie between $x_5$ and $x_6$ as to which variable should leave the basis. However, by identifying that $e_2 >> e_1$, we unambiguously break the tie, selecting $x_6$ as the leaving variable.
 
-
-## Cycle-Avoidance Testing
-Aside from the theoretical proof that the lexicographical method does not cycle, as far as practical testing goes:
-
-Since there are some very large LPs that do not finish in a reasonable time with this implementation (as seen in the Known Issues section), to test the cycle-avoidance, many LPs with known cycles under specific pivot rules were tested (i.e. an LP known to cycle on largest coefficient, as seen in lecture slides, as well as others). Furthermore, an optional flag can be set which remembers each basis we have seen so far. It does this by sorting the variables $x_1->x_{n+m}$, then hashes this string i.e. if our basis was $x_1, x_3$ and $x_5$, it would hash the string "x1x3x5". This hash is then stored. Every time we perform a pivot, the new hash is calculated and checked against the history. Since the hash is only 4-8 bytes (depending on platform), even after 1,000,000 iterations this would still only take up max 8MB of memory.
-
-To set this flag, in `simplex_driver.py` set the option:
-
-```python
-[15]    simplex_config = SimplexConfig()
-[16]    simplex_config.pivot_method = PivotMethod.LARGEST_COEFFICIENT
-[17]    simplex_config.test_cycle_avoidance = False # this line
-```
-
-to
-
-```python
-[15]    simplex_config = SimplexConfig()
-[16]    simplex_config.pivot_method = PivotMethod.LARGEST_COEFFICIENT
-[17]    simplex_config.test_cycle_avoidance = True # to this
-```
-
-
 # Appendix
 ## Long Running Files
 netlib_klein2.txt takes 
