@@ -152,7 +152,7 @@ However there is config for a variation of the Fibonnaci Sequence:
 
 $-(2,3,n_{i-2} + ceil((4/5)\cdot n_{i-1}) )$
 
-This stopps the sequence from balooning as fast on larger LPs, but did not run as fast as the fibonnaci:
+This stopps the sequence from balooning as fast on larger LPs (recommended for netlib_share1b.txt), but did not run as fast as the fibonnaci:
 
 Took 163 Pivots and 475.45 seconds.
 ```
@@ -207,16 +207,13 @@ Under the largest coefficient pivot rule, $x_1$ will be chosen as the entering v
 
 # Appendix
 ## Long Running Files
-netlib_klein2.txt takes 
+All supplied files have been tested against the program and do finish. The longest such file is netlib_share1b.txt, which takes ~13 minutes using the `FIBONNACI` dual intialization  and `LARGEST_INCREASE` pivot rules.
 
-netlib_share1b.txt takes about 665 seconds (~11 minutes) on the school computers
 ```
- python3 simplex_driver.py stats < data/test_LPs_volume1/toughies/netlib_share1b.txt
 optimal
 76589.32
 333.9 0 77.86822 0 0 3.794088 72.8 0 10.53246 0 0 0 799.4498 0 108.5993 351 0 54.33938 136.3972 10491.44 54369.9 15190.23 1277857 241.5632 0 1158.818 215 8159.058 604 2408.847 162.6116 124 44 428 163 891.1206 82.8 0 0 24.77519 54.46011 0 148.4 0 0 141.3706 0 673.6659 0 59.25929 589.1693 0 2115.6 177710.4 12421.08 3633.588 130.7018 0 123.5357 104 934.7553 0 2020.024 79.35278 121 0 110.4643 890.626 202.0024 575 209.2659 113 0 279 248 9953.891 2848.077 47187.21 0 0 0 0 0 198.7407 108 11197.64 2873.431 62302.87 562.0498 8171.439 6595.421 0 417.8238 49.60279 0 69.11528 0 0 0 422 0 2569.511 4.627695 224.5924 23.01764 0 0 2.388709 10.27614 0 0 0 47.1315 101.9824 0 0 0 6316.159 0 0 0 0 0 0 0 0 0 0 0 4175.28 0 0 0 0 0 0 7122.173 0 0 77.80248 917.0735 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1413.972 0 0 3.564697 4.954708 2.07467 19.66551 5.571858 0 0 0 0 0 87.20019 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2028.4 0 93.86653 41.57828 0 0 1002.185 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 953.405 0 0 64.43365 0 0 0
 
-Simplex Solver Problem Stats
 ----------------------------------------------------------------------
 | Category    | Stat                          | Value                |
 ----------------------------------------------------------------------
@@ -224,16 +221,16 @@ Simplex Solver Problem Stats
 | Overview    | number of constraints:        |                  206 |
 |             | required auxiliary:           |                  Yes |
 ----------------------------------------------------------------------
-|             | number of pivots:             |                  410 |
-|             | number of degenerate pivots:  |                  234 |
-| Auxiliary   | avg pivot selection time:     |            0.182862s |
-|             | avg pivot time:               |            1.129935s |
-|             | solution time:                |              538.33s |
+|             | number of pivots:             |                  256 |
+|             | number of degenerate pivots:  |                    0 |
+| Auxiliary   | avg pivot selection time:     |            0.247069s |
+|             | avg pivot time:               |            1.084367s |
+|             | solution time:                |              548.05s |
 ----------------------------------------------------------------------
-|             | number of pivots:             |                   78 |
-|             | number of degenerate pivots:  |                   15 |
-| Main L.P.   | avg pivot selection time:     |            0.051786s |
-|             | avg pivot time:               |            1.576650s |
-|             | solution time:                |              127.03s |
+|             | number of pivots:             |                   91 |
+|             | number of degenerate pivots:  |                   35 |
+| Main L.P.   | avg pivot selection time:     |            0.471295s |
+|             | avg pivot time:               |            1.482558s |
+|             | solution time:                |              253.73s |
 ----------------------------------------------------------------------
 ```
