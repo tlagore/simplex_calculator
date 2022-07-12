@@ -18,11 +18,17 @@ class SimplexState(Enum):
     INFEASIBLE = 3
     UNBOUNDED = 4
 
+class InitializationFn(Enum):
+    FIBONNACI = 1
+    MODIFIED_FIBONNACI = 2
+
 class SimplexConfig():
     """
     Currently unused, but might be used for to configure different methods of solving down the line
     """
     pivot_method = PivotMethod.LARGEST_COEFFICIENT
+    initialization_function = InitializationFn.FIBONNACI
+
 
 class SimplexDictionary():
     DEBUG = False
@@ -107,8 +113,21 @@ class SimplexDictionary():
         """
         orig_fn = self.objective_function.deepclone()
 
+        def fib(modified=False):
+            # fibonacci sequence, starting at the 3rd element
+            cur = 1
+            i_next = 2
+            while True:
+                yield cur
+                if modified:
+                    cur, i_next = i_next, cur+math.ceil((4.0/5.0)*i_next)
+                else:
+                    cur, i_next = i_next, cur+i_next
+
+        modified_fib = self.config.initialization_function == InitializationFn.FIBONNACI
+        num_gen = fib(modified_fib)
         # Zero out the objective function
-        obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), Fraction(-1)) for idx in range(1, self.n + 1)]
+        obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), -Fraction(next(num_gen))) for idx in range(1, self.n + 1)]
         obj_lhs = Variable('z', Fraction(1))
         self.objective_function.set_expression(obj_lhs, obj_rhs)
         
@@ -181,7 +200,6 @@ class SimplexDictionary():
         self.debug_print(f'Variable lookup: {var_lookup}')
 
         return var_lookup
-
 
     def __get_dual_obj_fn(self, dual_lookup):
         # set lhs to -z since we are doing -max(-fn)
@@ -359,10 +377,23 @@ class SimplexDictionary():
 
         if len(expressions) == 0:
             return None
+        elif len(expressions) == 1:
+            return expressions[0]
 
         self.debug_print('Breaking ties:\n{0}'.format("\n".join([expression[1].to_string() for expression in expressions])))
-        expressions.sort(key=functools.cmp_to_key(lambda x,y: x[1].compare_eps(y[1])))
-        self.debug_print(f'Chose: {expressions[0][1].to_string()}')
+        max = expressions[0][1]
+        max_i = 0
+        
+        for i in range(1, len(expressions)):
+            if expressions[i][1] > max:
+                max = expressions[i][1]
+                max_i = i
+
+        self.debug_print(f'Chose: {expressions[max_i][1].to_string()}')
+
+        return expressions[max_i]
+
+        # expressions.sort(key=functools.cmp_to_key(lambda x,y: x[1].compare_eps(y[1])))
         return expressions[0]
 
     def __break_ties(self, expressions):
