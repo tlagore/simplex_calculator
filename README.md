@@ -143,3 +143,19 @@ optimal
 |             | solution time:                |              253.73s |
 ----------------------------------------------------------------------
 ```
+
+
+## Optional test script
+`test.sh` can be used to automatically test the files that were supplied in the project description.
+
+**It expects the data to fall under `data/test_LPs_volume1` and `data/test_LPs_volume2`**
+
+It can be run as follows (in the same directory as simplex_driver.py):
+
+`sh test.sh [output_directory]`
+
+Example:
+
+`sh test.sh results/`
+
+It will run every single LP, save the output, and `diff` the file with the expected output
