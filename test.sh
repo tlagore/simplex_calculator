@@ -2,6 +2,13 @@
 # example usage: sh test.sh data/test_LPs_volume2/input/ resutlts/ data/test_LPs_volume2/output/
 # WARNING: If using on test_LPs_volume1, the solver will take a LONG TIME on the larger LPs
 
+if [ $# -ne 1 ]
+then
+     echo "Usage is:"
+     echo "sh test.sh [output_directory]"
+     exit -1
+fi
+
 OUTPUT_DIR=$1
 
 if [ ! -d "$OUTPUT_DIR" ]
