@@ -6,7 +6,7 @@ if [ $# -ne 1 ]
 then
      echo "Usage is:"
      echo "sh test.sh [output_directory]"
-     exit -1
+     exit 1
 fi
 
 OUTPUT_DIR=$1
