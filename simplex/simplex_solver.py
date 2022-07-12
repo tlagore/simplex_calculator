@@ -1,5 +1,7 @@
 import math
 import time
+import sys 
+
 from simplex.linear_expressions import LinearExpression
 from simplex.simplex_dictionary import SimplexDictionary, PivotMethod, SimplexState
 
@@ -154,9 +156,11 @@ class SimplexSolver():
                 if cur_val == updated_val:
                     self.stats.num_degenerate_pivots += 1
 
-                # print(f'{self.stats.num_pivots}', end='\r')
+                # sys.stderr.write( "{0}{1}\r".format("Aux pivots: " if auxiliary else "Main LP pivots:", self.stats.num_pivots) )
 
         self.stats.solution_time = time.time() - start_time
+
+        #sys.stderr.write("\n")
         
         if not auxiliary:
             state = self.s_dict.get_state()
