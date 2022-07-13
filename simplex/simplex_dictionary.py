@@ -36,16 +36,12 @@ class SimplexDictionary():
 
     def __init__(self, objective_function: LinearExpression, constraints, config = None):
         """ """
-        self.seen_basis = {}
-
         self.basis_exprs = [constraint.deepclone() for constraint in constraints]
         self.objective_function = objective_function.deepclone()
         self.x_vars = [x.deepclone() for x in self.objective_function.get_vars()]
         self.worker_count = int(math.ceil(multiprocessing.cpu_count()/2.0))
 
         # self.basis_comp_lock = threading.Semaphore(multiprocessing.cpu_count())
-
-        self.iter = 1
 
         if config is None:
             self.config = SimplexConfig()
@@ -126,12 +122,12 @@ class SimplexDictionary():
 
         modified_fib = self.config.initialization_function == InitializationFn.FIBONNACI
         num_gen = fib(modified_fib)
-        # Zero out the objective function
+        # Swap out the objective function
         obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), -Fraction(next(num_gen))) for idx in range(1, self.n + 1)]
         obj_lhs = Variable('z', Fraction(1))
         self.objective_function.set_expression(obj_lhs, obj_rhs)
         
-        # transpose
+        # change dictionary to dual in normal form
         self.as_dual_nf()
 
         return orig_fn
@@ -140,9 +136,7 @@ class SimplexDictionary():
         """
         Transforms the dictionary into a dual dictionary in normal form
         """
-        self.seen_basis.clear()
-        self.iter = 1
-
+        # get lookup for which variable goes to which mapping
         dual_lookup = self.__get_dual_lookup_table()
 
         (dual_lhs, dual_rhs) = self.__get_dual_obj_fn(dual_lookup)
