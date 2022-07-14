@@ -127,7 +127,11 @@ class SimplexDictionary():
         modified_fib = self.config.initialization_function == InitializationFn.FIBONNACI
         num_gen = fib(modified_fib)
         # Zero out the objective function
-        obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), -Fraction(next(num_gen))) for idx in range(1, self.n + 1)]
+        if self.n < 30:
+            obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), -Fraction(next(num_gen))) for idx in range(1, self.n + 1)]
+        else:
+            obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), -Fraction(-1)) for idx in range(1, self.n + 1)]
+
         obj_lhs = Variable('z', Fraction(1))
         self.objective_function.set_expression(obj_lhs, obj_rhs)
         

@@ -11,7 +11,6 @@ class VariableType(Enum):
     EPSILON = 3
     ZETA = 4
 
-
 class Variable():
     """ """
 

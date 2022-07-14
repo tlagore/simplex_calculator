@@ -12,7 +12,7 @@ def main():
     # Set configurations for simplex program
     # Defaults are LARGEST_INCREASE and FIBONNACI initialization (for substituted dual objective function)
     simplex_config = SimplexConfig()
-    simplex_config.pivot_method = PivotMethod.LARGEST_INCREASE
+    simplex_config.pivot_method = PivotMethod.LARGEST_COEFFICIENT
     simplex_config.initialization_function = InitializationFn.FIBONNACI
     solver = sp.parse(sys.stdin, simplex_config)
     sys.stderr.write("Beginning solve...\n")
