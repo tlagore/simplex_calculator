@@ -41,9 +41,11 @@ The program expects the input to be fed through stdin. No external libraries are
 
 # Extra Features
 ## 1. Pivot Method: Largest Increase with Optional Largest Cofficient (Max +1 Point)
+**To view the largest increase code**, please view the function `__get_largest_increase_pivot()` in `simplex_dictionary.py`
+
 The program can be configured to use the Largest Coefficient, or the Largest Increase pivot rule by supplying SimplexConfig with pivot_method set to `PivotMethod.LARGEST_COEFFICIENT` or `PivotMethod.LARGEST_INCREASE` respectively. Default is `LARGEST_INCREASE`.
 
-To enable `LARGEST_COEFFICIENT` modify this line in `simplex_driver.py`:
+To enable `LARGEST_COEFFICIENT` modify this line in `simplex_dictionary.py`
 
 ```python
 [15]    simplex_config = SimplexConfig()
@@ -57,7 +59,9 @@ to
 [16]    simplex_config.pivot_method = PivotMethod.LARGEST_COEFFICIENT # to this
 ```
 
-## 2. Dual Initialization (Max +2 Points)
+## 2. Dual-Primal Initialization (Max +2 Points)
+**To view the dual-primal intiialization code**, please view `as_dual_init()`, and `as_dual_nf` in `simplex_dictionary.py`
+
 The L.P. finds an initially feasible dictionary by first checking to see if the prmimal normal form L.P. is already feasible. If not, it performs dual initialization by setting the objective function to [some fully negative objective fn] **(several were attempted, see below)** then converting the L.P. to it's normal form dual, then solving the dual L.P.
 
 Originally it was tried to make the objective function to all 0's, but this caused large degeneracies in the Dual LP that made it take an incredibly long time to solve.
@@ -96,6 +100,12 @@ to
 ```
 
 ## 3. Lexicographical Cycle Avoidance (Max +4 points)
+**To view the lexicographical anti-cycling code**, please view the functions:
+    - `__break__break_ties_lgst` in `simplex_dictionary.py` (breaks ties for largest increase pivot method)
+    - `__break_ties_lgst` in `simplex_dictionary.py` (breaks ties for largest coefficient pivot method (if enabled))
+        - **NOTE**: `__gt__` has been overridden in `LinearExpression` and will return true if the linear expression has a "larger" epsilon than the other expression (as seen in `compare_eps` below)
+    - `set_epsilon` and `compare_eps` in `linear_expression.py`
+
 The program uses the Lexicographical (Symbolic Perturbation) method for breaking ties on variables leaving the basis. Several symbolic "epsilon" values are added to each constraint. Constraint $w_1$ (or $x_{n+1}$) will have $\epsilon_1$, $w_2$ will have $\epsilon_2$, etc. With the semantics that $0 < \epsilon_m << \epsilon_{m-1} << ... << \epsilon_1$. Symbolically, these values are on such wildly different scales than one another than there can exist no constant $c$ such that $c\epsilon_i > \epsilon_{i-1}$. Furthermore, each $\epsilon$ is symbolic, and does not change the nature of the L.P. being solved.
 
 We can then use these $\epsilon$ to uniquely identify the leaving variable on all ties.
