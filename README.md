@@ -26,9 +26,7 @@ The positivity constraints are implied, and not required.
 ## Running the program
 The program expects the input to be fed through stdin. No external libraries are required to run the program. Run the program as follows:
 
-`python3 simplex_driver.py [debug] < input.txt`
-
-- `debug` is an optional flag. If supplied, the program will print all decisions being made and intermediary dictionaries to `stderr`.  **(warning: large LPs do not have pretty debug output)**
+`python3 simplex_driver.py < input.txt`
 
 **NOTE:** The program outputs a number of informational messages and statistics about the solved LP, *but is all printed to `stderr`*. Only the solution is printed to stdout.
 

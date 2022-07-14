@@ -99,14 +99,14 @@ class SimplexSolver():
         Returns: True if successful, else false
         """
 
-        self.debug_print(self.s_dict.to_string())
-        self.debug_print("Dictionary is not feasible, attempting auxiliary problem")
+        # self.debug_print(self.s_dict.to_string())
+        # self.debug_print("Dictionary is not feasible, attempting auxiliary problem")
 
         orig_fn = self.s_dict.as_dual_init()
         self.solve(auxiliary=True)
         
         if self.s_dict.get_state() == SimplexState.OPTIMAL:
-            self.debug_print("Dual problem was solvable!")
+            # self.debug_print("Dual problem was solvable!")
 
             # take the dual to get our original problem in terms of the dual-feasible dictionary
             self.s_dict.as_dual_nf()
@@ -118,14 +118,14 @@ class SimplexSolver():
                 if basis is not None:
                     orig_fn.substitute(var.varname, basis.get_vars(include_constant=True))
 
-            self.debug_print("Transformed function:")
-            self.debug_print(orig_fn.to_string())
+            # self.debug_print("Transformed function:")
+            # self.debug_print(orig_fn.to_string())
 
             self.s_dict.set_objective_function(orig_fn)
 
             return True
 
-        self.debug_print("Dual problem was not solvable.")
+        # self.debug_print("Dual problem was not solvable.")
         return False
 
     def solve(self, auxiliary = False):
@@ -147,8 +147,8 @@ class SimplexSolver():
                 self.s_dict.pivot(entering_var, leaving_expr)
                 self.stats.pivot_time += (time.perf_counter() - st)
 
-                self.debug_print(self.to_string())
-                self.debug_print(f"entering_var: {entering_var.to_string()}\nleaving_var: {leaving_expr.to_string()}") 
+                # self.debug_print(self.to_string())
+                # self.debug_print(f"entering_var: {entering_var.to_string()}\nleaving_var: {leaving_expr.to_string()}") 
                 updated_val = self.s_dict.get_objective_value()
                 self.stats.num_pivots += 1
                 
@@ -169,9 +169,9 @@ class SimplexSolver():
 
     def print_result(self, state):
         if state == SimplexState.OPTIMAL:
-            self.debug_print("Optimal Dictionary:")
-            self.debug_print(self.to_string())
-            self.debug_print(f"Objective value: {self.s_dict.objective_function.get_constant().coefficient}")
+            # self.debug_print("Optimal Dictionary:")
+            # self.debug_print(self.to_string())
+            # self.debug_print(f"Objective value: {self.s_dict.objective_function.get_constant().coefficient}")
             objective_value = self.s_dict.objective_function.get_constant().coefficient
             print("optimal")
             print(self.format_float(objective_value))
@@ -179,12 +179,12 @@ class SimplexSolver():
             print(self.format_solution(basis_sol))
         elif state == SimplexState.INFEASIBLE:
             print('infeasible')
-            self.debug_print("INFEASIBLE!")
-            self.debug_print(self.to_string())
+            # self.debug_print("INFEASIBLE!")
+            # self.debug_print(self.to_string())
         elif state == SimplexState.UNBOUNDED:
             print('unbounded')
-            self.debug_print("UNBOUNDED!")
-            self.debug_print(self.to_string())
+            # self.debug_print("UNBOUNDED!")
+            # self.debug_print(self.to_string())
 
     def format_solution(self, fn):
         return ' '.join([self.format_float(value) for (_, value) in fn])

@@ -196,7 +196,7 @@ class SimplexDictionary():
         var_lookup = { f'{dual_replace}{i}':f'{dual_prefix}{self.m+i}' for i in range(1, self.n+1)}
         replace_lookup = {f'{dual_replace}{i}':f'{dual_prefix}{i-self.n}' for i in range(self.n+1, self.n+self.m+1)}
         var_lookup.update(replace_lookup)
-        self.debug_print(f'Variable lookup: {var_lookup}')
+        # self.debug_print(f'Variable lookup: {var_lookup}')
 
         return var_lookup
 
@@ -379,7 +379,7 @@ class SimplexDictionary():
         elif len(expressions) == 1:
             return expressions[0]
 
-        self.debug_print('Breaking ties:\n{0}'.format("\n".join([expression[1].to_string() for expression in expressions])))
+        # self.debug_print('Breaking ties:\n{0}'.format("\n".join([expression[1].to_string() for expression in expressions])))
         max = expressions[0][1]
         max_i = 0
         
@@ -388,7 +388,7 @@ class SimplexDictionary():
                 max = expressions[i][1]
                 max_i = i
 
-        self.debug_print(f'Chose: {expressions[max_i][1].to_string()}')
+        # self.debug_print(f'Chose: {expressions[max_i][1].to_string()}')
 
         return expressions[max_i]
 
@@ -404,11 +404,11 @@ class SimplexDictionary():
         if len(expressions) == 0:
             return None
 
-        self.debug_print('Breaking ties:\n{0}'.format("\n".join([expression.to_string() for expression in expressions])))
+        # self.debug_print('Breaking ties:\n{0}'.format("\n".join([expression.to_string() for expression in expressions])))
         
         # We overrode the ge in LinearExpression so max just natively works
         top = max(expressions)
-        self.debug_print(f'Chose: {expressions[0].to_string()}')
+        # self.debug_print(f'Chose: {expressions[0].to_string()}')
         return top
 
     def sub_basis(self, args):
@@ -503,7 +503,7 @@ class SimplexDictionary():
         for basis_expr in self.basis_exprs:
             other_expr = self.get_basis_by_varname(basis_expr.varname(), other_dict.basis_exprs)
             if other_expr is None:
-                self.debug_print(f"Could not find expression in other for variable '{basis_expr.varname}'")
+                # self.debug_print(f"Could not find expression in other for variable '{basis_expr.varname}'")
                 return False
 
             if not basis_expr.deepequals(other_expr):
@@ -523,10 +523,10 @@ class SimplexDictionary():
 
             if comp_var is not None:
                 if comp_var.coefficient != var.coefficient:
-                    self.debug_print(f"var: {var.varname} coefficients {comp_var.coefficient} != {var.coefficient}")
+                    # self.debug_print(f"var: {var.varname} coefficients {comp_var.coefficient} != {var.coefficient}")
                     return False
             else:
-                self.debug_print(f"var: '{var.varname}' other did not contain var.")
+                # self.debug_print(f"var: '{var.varname}' other did not contain var.")
                 return False
 
         return True

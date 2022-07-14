@@ -5,9 +5,10 @@ from simplex.simplex_dictionary import SimplexConfig, PivotMethod, Initializatio
 def main():
     debug = False
 
-    if len(sys.argv) > 1:
-        if sys.argv[1] == 'debug':
-            debug = True
+    # debug_print was slowing the program down quite a bit
+    # if len(sys.argv) > 1:
+    #     if sys.argv[1] == 'debug':
+    #         debug = True
 
     # Set configurations for simplex program
     # Defaults are LARGEST_INCREASE and FIBONNACI initialization (for substituted dual objective function)
@@ -17,10 +18,10 @@ def main():
     solver = sp.parse(sys.stdin, simplex_config)
     sys.stderr.write("Beginning solve...\n")
 
-    if debug:
-        sys.stderr.write("Starting dictionary:\n")
-        sys.stderr.write("{0}\n".format(solver.s_dict.to_string()))
-        solver.enable_debug()
+    # if debug:
+    #     sys.stderr.write("Starting dictionary:\n")
+    #     sys.stderr.write("{0}\n".format(solver.s_dict.to_string()))
+    #     solver.enable_debug()
 
     solver.solve()
     solver.stats.print_stats()
