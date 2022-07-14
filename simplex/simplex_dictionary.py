@@ -122,11 +122,14 @@ class SimplexDictionary():
 
         modified_fib = self.config.initialization_function == InitializationFn.FIBONNACI
         num_gen = fib(modified_fib)
-        # Zero out the objective function
-        if self.n < 30:
+        
+        # fibonacci does not play nicely if we have too many objective variables, so only use it if the obj var count is reasonable
+        if self.n < 60:
+            print('using fib')
             obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), -Fraction(next(num_gen))) for idx in range(1, self.n + 1)]
         else:
-            obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), -Fraction(-1)) for idx in range(1, self.n + 1)]
+            print('using -1')
+            obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), -Fraction(1)) for idx in range(1, self.n + 1)]
 
         obj_lhs = Variable('z', Fraction(1))
         self.objective_function.set_expression(obj_lhs, obj_rhs)
