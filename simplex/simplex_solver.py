@@ -99,7 +99,7 @@ class SimplexSolver():
         Returns: True if successful, else false
         """
 
-        self.debug_print(self.s_dict.to_string())
+        self.debug_print(self.s_dict)
         self.debug_print("Dictionary is not feasible, attempting auxiliary problem")
 
         orig_fn = self.s_dict.as_dual_init()
@@ -147,8 +147,8 @@ class SimplexSolver():
                 self.s_dict.pivot(entering_var, leaving_expr)
                 self.stats.pivot_time += (time.perf_counter() - st)
 
-                self.debug_print(self.to_string())
-                self.debug_print(f"entering_var: {entering_var.to_string()}\nleaving_var: {leaving_expr.to_string()}") 
+                self.debug_print(self)
+                self.debug_print(f"entering_var: {entering_var}\nleaving_var: {leaving_expr}") 
                 updated_val = self.s_dict.get_objective_value()
                 self.stats.num_pivots += 1
                 
@@ -170,7 +170,7 @@ class SimplexSolver():
     def print_result(self, state):
         if state == SimplexState.OPTIMAL:
             self.debug_print("Optimal Dictionary:")
-            self.debug_print(self.to_string())
+            self.debug_print(self)
             self.debug_print(f"Objective value: {self.s_dict.objective_function.get_constant().coefficient}")
             objective_value = self.s_dict.objective_function.get_constant().coefficient
             print("optimal")
@@ -180,11 +180,11 @@ class SimplexSolver():
         elif state == SimplexState.INFEASIBLE:
             print('infeasible')
             self.debug_print("INFEASIBLE!")
-            self.debug_print(self.to_string())
+            self.debug_print(self)
         elif state == SimplexState.UNBOUNDED:
             print('unbounded')
             self.debug_print("UNBOUNDED!")
-            self.debug_print(self.to_string())
+            self.debug_print(self)
 
     def format_solution(self, fn):
         return ' '.join([self.format_float(value) for (_, value) in fn])
@@ -196,5 +196,5 @@ class SimplexSolver():
         else:
             return f'{float(flt):.0f}'
 
-    def to_string(self):
-        return self.s_dict.to_string()
+    # def to_string(self):
+    #     return self.s_dict.to_string()

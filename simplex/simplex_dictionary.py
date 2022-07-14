@@ -388,7 +388,7 @@ class SimplexDictionary():
                 max = expressions[i][1]
                 max_i = i
 
-        self.debug_print(f'Chose: {expressions[max_i][1].to_string()}')
+        self.debug_print(f'Chose: {expressions[max_i][1]}')
 
         return expressions[max_i]
 
@@ -408,7 +408,7 @@ class SimplexDictionary():
         
         # We overrode the ge in LinearExpression so max just natively works
         top = max(expressions)
-        self.debug_print(f'Chose: {expressions[0].to_string()}')
+        self.debug_print(f'Chose: {expressions[0]}')
         return top
 
     def sub_basis(self, args):
@@ -531,14 +531,14 @@ class SimplexDictionary():
 
         return True
 
-    def to_string(self):
-        msg = '\n----------------------------------\n'
-        msg += self.objective_function.to_string()
-        msg += '\n----------------------------------'
+    # def to_string(self):
+    #     msg = '\n----------------------------------\n'
+    #     msg += self.objective_function.to_string()
+    #     msg += '\n----------------------------------'
         
-        for basis_expr in self.basis_exprs:
-            msg += f'\n{basis_expr.to_string()}'
+    #     for basis_expr in self.basis_exprs:
+    #         msg += f'\n{basis_expr.to_string()}'
 
-        msg += '\n----------------------------------'
+    #     msg += '\n----------------------------------'
 
-        return msg
+    #     return msg
