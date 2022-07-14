@@ -125,10 +125,8 @@ class SimplexDictionary():
         
         # fibonacci does not play nicely if we have too many objective variables, so only use it if the obj var count is reasonable
         if self.n < 60:
-            print('using fib')
             obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), -Fraction(next(num_gen))) for idx in range(1, self.n + 1)]
         else:
-            print('using -1')
             obj_rhs = [Variable(Variable.CONSTANT, Fraction(0))] + [ Variable('x' + str(idx), -Fraction(1)) for idx in range(1, self.n + 1)]
 
         obj_lhs = Variable('z', Fraction(1))
