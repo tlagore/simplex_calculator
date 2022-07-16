@@ -18,6 +18,7 @@ def main():
     solver = sp.parse(sys.stdin, simplex_config)
     sys.stderr.write("Beginning solve...\n")
 
+    # turned off debug, the debug_print was hurting performance even when disabled
     # if debug:
     #     sys.stderr.write("Starting dictionary:\n")
     #     sys.stderr.write("{0}\n".format(solver.s_dict.to_string()))
