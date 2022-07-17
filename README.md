@@ -124,7 +124,7 @@ Under the largest coefficient pivot rule, $x_1$ will be chosen as the entering v
 
 # Appendix
 ## Long Running Files
-All supplied files have been tested against the program and do finish. The longest such file is netlib_share1b.txt, which takes ~13 minutes using the `FIBONNACI` dual intialization  and `LARGEST_INCREASE` pivot rules.
+All supplied files have been tested against the program and do finish. The longest such file is `netlib_share1b.txt`, which takes ~13 minutes using the `FIBONNACI` dual intialization  and `LARGEST_INCREASE` pivot rules.
 
 ```
 optimal
@@ -140,13 +140,13 @@ optimal
 ----------------------------------------------------------------------
 |             | number of pivots:             |                  256 |
 |             | number of degenerate pivots:  |                    0 |
-| Auxiliary   | avg pivot selection time:     |            0.247069s |
+| Dual        | avg pivot selection time:     |            0.247069s |
 |             | avg pivot time:               |            1.084367s |
 |             | solution time:                |              548.05s |
 ----------------------------------------------------------------------
 |             | number of pivots:             |                   91 |
 |             | number of degenerate pivots:  |                   35 |
-| Main L.P.   | avg pivot selection time:     |            0.471295s |
+| Primal      | avg pivot selection time:     |            0.471295s |
 |             | avg pivot time:               |            1.482558s |
 |             | solution time:                |              253.73s |
 ----------------------------------------------------------------------

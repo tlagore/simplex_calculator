@@ -41,7 +41,7 @@ class SimplexStats():
         sys.stderr.write("{0}\n".format('-'*70))
 
     def __print_stats(self, stats: 'SimplexStats', aux: bool):
-        p_type = 'Auxiliary' if aux else 'Main L.P.'
+        p_type = 'Dual' if aux else 'Primal'
         sys.stderr.write("| {0:<12}| {1:30}| {2:20} |\n".format('', f"number of pivots:", stats.num_pivots))
         sys.stderr.write("| {0:<12}| {1:30}| {2:20} |\n".format('', f"number of degenerate pivots:", stats.num_degenerate_pivots))
         sys.stderr.write("| {0:<12}| {1:30}| {2:19.6f}s |\n".format(p_type, f"avg pivot selection time:", 0 if stats.num_pivots == 0 else stats.pivot_selection_time/stats.num_pivots))
@@ -155,7 +155,7 @@ class SimplexSolver():
                 if cur_val == updated_val:
                     self.stats.num_degenerate_pivots += 1
 
-                sys.stderr.write( "{0}{1}\r".format("Dual LP pivots: " if auxiliary else "Main LP pivots: ", self.stats.num_pivots) )
+                sys.stderr.write( "{0}{1}\r".format("Dual LP pivots: " if auxiliary else "Primal LP pivots: ", self.stats.num_pivots) )
 
         self.stats.solution_time = time.time() - start_time
 
