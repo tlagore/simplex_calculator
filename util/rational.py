@@ -1,3 +1,5 @@
+# Author: Tyrone Lagore V00995698
+
 ## Rational is not used in the solution, felt like a shame to delete it though
 ##
 ## Basically just implements the fractions.Fraction class

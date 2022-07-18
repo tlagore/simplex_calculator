@@ -1,3 +1,5 @@
+# Author: Tyrone Lagore V00995698
+
 import math
 import time
 import sys 

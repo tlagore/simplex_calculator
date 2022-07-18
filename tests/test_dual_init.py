@@ -1,3 +1,5 @@
+# Author: Tyrone Lagore V00995698
+
 from simplex.simplex_dictionary import SimplexDictionary, SimplexConfig
 from simplex.linear_expressions import LinearExpression, Variable
 from fractions import Fraction

@@ -1,4 +1,5 @@
 # Dictionary Based Simplex Linear Program Solver
+### Author: Tyrone Lagore V00995698
 This is an implementation of the [Simplex Algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) for solving linear programs. Given a linear program in standard form, the program will determine whether the linear program is feasible, unbounded, or it will provide the optimal value, with the assignment of optimization variables that achieves this optimal value.
 
 ## Input

@@ -1,3 +1,5 @@
+# Author: Tyrone Lagore V00995698
+
 import functools
 from simplex.linear_expressions import Variable, LinearExpression
 from fractions import Fraction

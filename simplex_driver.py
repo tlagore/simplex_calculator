@@ -1,3 +1,5 @@
+# Author: Tyrone Lagore V00995698
+
 import sys
 import simplex.simplex_parser as sp
 from simplex.simplex_dictionary import SimplexConfig, PivotMethod, InitializationFn
@@ -5,7 +7,7 @@ from simplex.simplex_dictionary import SimplexConfig, PivotMethod, Initializatio
 def main():
     debug = False
 
-    # debug_print was slowing the program down quite a bit
+    # debug_print was slowing the program down quite a bit so I removed debug as a cmdline argument
     # if len(sys.argv) > 1:
     #     if sys.argv[1] == 'debug':
     #         debug = True
