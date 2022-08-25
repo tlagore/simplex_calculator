@@ -1,5 +1,5 @@
 # Dictionary Based Simplex Linear Program Solver
-### Author: Tyrone Lagore V00995698
+### Author: Tyrone Lagore
 This is an implementation of the [Simplex Algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) for solving linear programs. Given a linear program in standard form, the program will determine whether the linear program is feasible, unbounded, or it will provide the optimal value, with the assignment of optimization variables that achieves this optimal value.
 
 ## Input
@@ -58,7 +58,7 @@ to
 [16]    simplex_config.pivot_method = PivotMethod.LARGEST_COEFFICIENT # to this
 ```
 
-## 2. Dual-Primal Initialization (Max +2 Points)
+## 2. Dual-Primal Initialization
 **To view the dual-primal intiialization code**, please view `as_dual_init()`, and `as_dual_nf` in `simplex_dictionary.py`
 
 The L.P. finds an initially feasible dictionary by first checking to see if the prmimal normal form L.P. is already feasible. If not, it performs dual initialization by setting the objective function to [some fully negative objective fn] **(several were attempted, see below)** then converting the L.P. to it's normal form dual, then solving the dual L.P.
@@ -122,49 +122,3 @@ x7 =  + (1) + (0)e1 + (0)e2 + (1)e3 + (0)x1 + (0)x2 - (1)x3 + (0)x4
 ```
 
 Under the largest coefficient pivot rule, $x_1$ will be chosen as the entering variable. However, there is a tie between $x_5$ and $x_6$ as to which variable should leave the basis. However, by identifying that $e_1 >> e_2$, we unambiguously break the tie, selecting $x_5$ as the leaving variable.
-
-# Appendix
-## Long Running Files
-All supplied files have been tested against the program and do finish. The longest such file is `netlib_share1b.txt`, which takes ~13 minutes using the `FIBONNACI` dual intialization  and `LARGEST_INCREASE` pivot rules.
-
-```
-optimal
-76589.32
-333.9 0 77.86822 0 0 3.794088 72.8 0 10.53246 0 0 0 799.4498 0 108.5993 351 0 54.33938 136.3972 10491.44 54369.9 15190.23 1277857 241.5632 0 1158.818 215 8159.058 604 2408.847 162.6116 124 44 428 163 891.1206 82.8 0 0 24.77519 54.46011 0 148.4 0 0 141.3706 0 673.6659 0 59.25929 589.1693 0 2115.6 177710.4 12421.08 3633.588 130.7018 0 123.5357 104 934.7553 0 2020.024 79.35278 121 0 110.4643 890.626 202.0024 575 209.2659 113 0 279 248 9953.891 2848.077 47187.21 0 0 0 0 0 198.7407 108 11197.64 2873.431 62302.87 562.0498 8171.439 6595.421 0 417.8238 49.60279 0 69.11528 0 0 0 422 0 2569.511 4.627695 224.5924 23.01764 0 0 2.388709 10.27614 0 0 0 47.1315 101.9824 0 0 0 6316.159 0 0 0 0 0 0 0 0 0 0 0 4175.28 0 0 0 0 0 0 7122.173 0 0 77.80248 917.0735 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1413.972 0 0 3.564697 4.954708 2.07467 19.66551 5.571858 0 0 0 0 0 87.20019 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2028.4 0 93.86653 41.57828 0 0 1002.185 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 953.405 0 0 64.43365 0 0 0
-
-----------------------------------------------------------------------
-| Category    | Stat                          | Value                |
-----------------------------------------------------------------------
-|             | number of variables:          |                  225 |
-| Overview    | number of constraints:        |                  206 |
-|             | required auxiliary:           |                  Yes |
-----------------------------------------------------------------------
-|             | number of pivots:             |                  256 |
-|             | number of degenerate pivots:  |                    0 |
-| Dual        | avg pivot selection time:     |            0.247069s |
-|             | avg pivot time:               |            1.084367s |
-|             | solution time:                |              548.05s |
-----------------------------------------------------------------------
-|             | number of pivots:             |                   91 |
-|             | number of degenerate pivots:  |                   35 |
-| Primal      | avg pivot selection time:     |            0.471295s |
-|             | avg pivot time:               |            1.482558s |
-|             | solution time:                |              253.73s |
-----------------------------------------------------------------------
-```
-
-
-## Optional test script
-`test.sh` can be used to automatically test the files that were supplied in the project description.
-
-**It expects the data to fall under `data/test_LPs_volume1` and `data/test_LPs_volume2`**
-
-It can be run as follows (in the same directory as simplex_driver.py):
-
-`sh test.sh [output_directory]`
-
-Example:
-
-`sh test.sh results/`
-
-It will run every single LP, save the output, and `diff` the file with the expected output
