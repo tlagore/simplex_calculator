@@ -1,4 +1,7 @@
 # Dictionary Based Simplex Linear Program Solver
+## Note:
+There are obviously much quicker implementations for Linear Program solving (Revised Simplex Method using Linear Algebra for example). This was a project to understand the simplex method in greater detail, as well as the complexity of managing the dictionary in the dictionary based method.
+
 ### Author: Tyrone Lagore
 This is an implementation of the [Simplex Algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) for solving linear programs. Given a linear program in standard form, the program will determine whether the linear program is feasible, unbounded, or it will provide the optimal value, with the assignment of optimization variables that achieves this optimal value.
 
